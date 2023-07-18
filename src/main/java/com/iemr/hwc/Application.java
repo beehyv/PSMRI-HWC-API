@@ -21,6 +21,7 @@
 */
 package com.iemr.hwc;
 
+import ca.uhn.fhir.context.FhirContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -53,4 +54,6 @@ public class Application {
 		return new RestTemplate();
 	}
 
+	@Bean
+	public FhirContext fhirContext() { return FhirContext.forR4(); }
 }
