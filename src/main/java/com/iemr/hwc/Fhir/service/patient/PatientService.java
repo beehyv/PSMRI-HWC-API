@@ -1,6 +1,8 @@
 package com.iemr.hwc.Fhir.service.patient;
 
+import org.springframework.http.ResponseEntity;
+
 public interface PatientService {
 
-    String create(String patientData, String authorization) throws Exception;
+    ResponseEntity<String> create(String patientData, String authorization);
 }

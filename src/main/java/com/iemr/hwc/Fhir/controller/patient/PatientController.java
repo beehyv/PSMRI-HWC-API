@@ -2,10 +2,10 @@ package com.iemr.hwc.Fhir.controller.patient;
 
 import com.iemr.hwc.Fhir.service.patient.PatientService;
 import com.iemr.hwc.utils.mapper.InputMapper;
-import com.iemr.hwc.utils.response.OutputResponse;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -30,18 +30,10 @@ public class PatientController {
     @CrossOrigin()
     @ApiOperation(value = "Register a new FHIR Patient resource", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = { "" }, method = { RequestMethod.POST })
-    public String createPatient(@RequestBody String patientResource,
-                                @RequestHeader(value = "Authorization") String authorization) {
-        String s;
-        OutputResponse response = new OutputResponse();
-        try {
-            s = patientService.create(patientResource, authorization);
-            return s;
-        } catch (Exception e) {
-            log.error("Error in registration" + e);
-            response.setError(5000, "Error in registration; please contact administrator");
-            return response.toString();
-        }
+    public ResponseEntity<String> createPatient(@RequestBody String patientResource,
+                                        @RequestHeader(value = "Authorization") String authorization) {
+
+            return patientService.create(patientResource, authorization);
 
     }
 }

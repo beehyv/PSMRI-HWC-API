@@ -2,6 +2,7 @@ package com.iemr.hwc.Fhir.utils;
 
 import ca.uhn.fhir.context.FhirContext;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ public class Mappers {
         this.fhirContext=fhirContext;
     }
 
-    public String patientResourceToDbMapper(String patientData){
+    public String patientResourceToDbMapper(String patientData) throws JSONException {
 
         JSONObject resourceJson = new JSONObject(patientData);
         JSONObject mappedJson = new JSONObject();
@@ -80,6 +81,7 @@ public class Mappers {
                     demographics.put(fieldKey + "Name",j.getJSONObject("valueCoding").getString("display"));
                 }
             }
+            //@todo - Multiple Govt identities to be mapped into respective objects based on structure of extension
             else if (mapToObj.equalsIgnoreCase("identity")) {
                 if (j.has("valueCoding")){
                     ids.put("govtIdentityTypeID",j.getJSONObject("valueCoding").getString("code"));
