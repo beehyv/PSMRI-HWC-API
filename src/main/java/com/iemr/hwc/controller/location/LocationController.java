@@ -66,7 +66,7 @@ public class LocationController {
 	}
 
 	@ApiOperation(value = "Get country city master for beneficiary", consumes = "application/json", produces = "application/json")
-	@RequestMapping(value = "/get/countryCityMaster/{countryID}", method = RequestMethod.GET)
+	@RequestMapping(value = "/get/countryCityMaster/{countryID}/", method = RequestMethod.GET)
 	public String getCountryCityMaster(@PathVariable("countryID") Integer countryID) {
 		logger.info("get country citymaster ...");
 		response = new OutputResponse();
@@ -154,10 +154,12 @@ public class LocationController {
 		logger.info("get village by districtID ..." + districtID);
 		response = new OutputResponse();
 		String s = locationServiceImpl.getVillageListByDistrictID(districtID);
-		if (s != null)
+		if (s != null){
 			response.setResponse(s);
-		else
+		}
+		else{
 			response.setError(5000, "Error while getting villages");
+		}
 		logger.info("village master" + response.toString());
 		return response.toString();
 	}
