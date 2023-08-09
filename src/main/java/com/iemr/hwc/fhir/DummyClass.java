@@ -16,8 +16,8 @@ public class DummyClass {
                         }
 
     public void emptyMethod(int Param1, int Param2){ //Wrong param naming
-        if(){
-                //missing closing bracket
-
+        if(true) {
+            //missing closing bracket
+    }
     }
 }
