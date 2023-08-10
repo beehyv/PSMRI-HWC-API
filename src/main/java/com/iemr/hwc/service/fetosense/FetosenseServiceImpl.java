@@ -73,8 +73,8 @@ public class FetosenseServiceImpl implements FetosenseService {
 	@Value("${fetosenseAPIKey}")
 	private String fetosenseAPIKey;
 
-	@Value("${fetosenseReportPath}")
-	private String fetosenseReportPath;
+//	@Value("${fetosenseReportPath}")
+//	private String fetosenseReportPath;
 
 	static HttpURLConnection con;
 

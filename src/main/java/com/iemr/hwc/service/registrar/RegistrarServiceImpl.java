@@ -21,15 +21,12 @@
 */
 package com.iemr.hwc.service.registrar;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import javax.ws.rs.core.MediaType;
 
@@ -40,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -96,6 +94,9 @@ public class RegistrarServiceImpl implements RegistrarService {
 
 	@Value("${registrarAdvanceSearchUrl}")
 	private String registrarAdvanceSearchUrl;
+
+	@Value("${syncSearchByLocation}")
+	private String syncSearchByLocation;
 
 	private RegistrarRepoBenData registrarRepoBenData;
 	private RegistrarRepoBenDemoData registrarRepoBenDemoData;
@@ -744,6 +745,47 @@ public class RegistrarServiceImpl implements RegistrarService {
 			// log error that registration failed.
 		}
 		return response1.toString();
+	}
+
+	// beneficiary advance search new integrated with common and identity
+	public String getBeneficiaryByBlockIDAndLastModDate(String blockID, Date lastModifDate, String Authorization) {
+		System.out.println("SERVICE ********************** ");
+		String returnOBJ = null;
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			JSONObject obj = new JSONObject();
+			obj.put("blockID", Integer.parseInt(blockID));
+			obj.put("lastModifDate", lastModifDate.getTime());
+
+			if ((obj.has("blockID") && !obj.isNull("blockID"))){
+//				System.out.println("Babs ********************** "+ obj);
+			}
+
+			if ((obj.has("lastModifDate") && !obj.isNull("lastModifDate"))){
+//				System.out.println("Babs 2********************** "+obj);
+			}
+
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
+//			HttpHeaders headers = new HttpHeaders();
+			headers.add("Content-Type", "application/json");
+//		headers.add("AUTHORIZATION", Authorization);
+			HttpEntity<String> request = new HttpEntity<String>(obj.toString(), headers);
+//			System.out.println("objectRequest "+request);
+		ResponseEntity<String> response = restTemplate.exchange(syncSearchByLocation, HttpMethod.POST, request,
+				String.class);
+//			String personResultAsJsonStr = restTemplate.postForObject(new URI(syncSearchByLocation), request, String.class);
+			System.out.println("Identity response "+response);
+
+			if (response.hasBody()){
+				returnOBJ = response.getBody();
+			}
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+
+		return returnOBJ;
+
 	}
 
 	// New beneficiary update api
