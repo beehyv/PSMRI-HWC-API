@@ -38,7 +38,7 @@ public class AuthInterceptor {
                     remoteAddress = theRequest.getRemoteAddr();
                 }
                 //Redirecting to already built validator service to authenticate
-//                validator.checkKeyExists(authorization, remoteAddress);
+                validator.checkKeyExists(authorization, remoteAddress);
                 theResponse.addHeader("Access-Control-Allow-Origin", "*");
             }
         }

@@ -102,14 +102,18 @@ public class PatientExtProvider implements IResourceProvider {
             for (BeneficiariesDTOSearch benef:listBeneficiaries) {
                 HumanName human = new HumanName();
                 PatientExt patient = new PatientExt();
+                patient.setId(1L+"");
                 patient.setFatherName(new StringType(benef.getBeneficiaryDetails().getFatherName()));
                 patient.setSpouseName(new StringType(benef.getBeneficiaryDetails().getSpouseName()));
-//                patient.setAgeAtMarriage(new StringType(benef.get));
-                Coding coding = new Coding();
-                coding.setCode(benef.getAbhaDetails().get(0).getHealthID());
-                coding.setDisplay(benef.getAbhaDetails().get(0).getHealthIDNumber());
-                patient.setAbhaGenerationMode(coding);
-                patient.setProviderServiceMapId(new StringType(benef.getBeneficiaryServiceMap().get(0).getBenServiceMapID()+""));
+                patient.setAgeAtMarriage(new StringType());
+                if(benef.getAbhaDetails() != null && benef.getAbhaDetails().size()>0 && benef.getAbhaDetails().get(0) != null){
+                    Coding coding = new Coding();
+                    coding.setCode(benef.getAbhaDetails().get(0).getHealthID());
+                    coding.setDisplay(benef.getAbhaDetails().get(0).getHealthIDNumber());
+                    patient.setAbhaGenerationMode(coding);
+                    patient.setProviderServiceMapId(new StringType(benef.getBeneficiaryServiceMap().get(0).getBenServiceMapID()+""));
+                }
+
                 patient.setVanID(new StringType(benef.getBeneficiaryDetails().getVanID()+""));
                 patient.setParkingPlaceID(new StringType(benef.getBeneficiaryDetails().getParkingPlaceID()+""));
                 patient.setCreatedBy(new StringType(benef.getCreatedBy()));
@@ -137,15 +141,19 @@ public class PatientExtProvider implements IResourceProvider {
                 codingCommunity.setCode(benef.getBeneficiaryDetails().getCommunityId()+"");
                 codingCommunity.setDisplay(benef.getBeneficiaryDetails().getCommunity());
                 patient.setCommunity(codingCommunity);
-                Coding codingGovIdentityType = new Coding();
-                codingGovIdentityType.setCode(benef.getBeneficiaryIdentites().get(0).getIdentityTypeId()+"");
-                codingGovIdentityType.setDisplay(benef.getBeneficiaryIdentites().get(0).getIdentityType());
-                patient.setGovtIdentityType(codingGovIdentityType);
-                patient.setGovtIdentityNo(new StringType(benef.getBeneficiaryIdentites().get(0).getIdentityNo()));
-//                Coding codingGovtHealthProgramType = new Coding();
-//                codingGovtHealthProgramType.setCode(benef.getBeneficiaryIdentites().get(0).getIdentityTypeId()+"");
-//                codingGovtHealthProgramType.setDisplay(benef.getBeneficiaryIdentites().get(0).getIdentityType());
+
+                if(benef.getBeneficiaryIdentites()!=null && benef.getBeneficiaryIdentites().size()>0 && benef.getBeneficiaryIdentites().get(0) !=null ){
+                    Coding codingGovIdentityType = new Coding();
+                    codingGovIdentityType.setCode(benef.getBeneficiaryIdentites().get(0).getIdentityTypeId()+"");
+                    codingGovIdentityType.setDisplay(benef.getBeneficiaryIdentites().get(0).getIdentityType());
+                    patient.setGovtIdentityType(codingGovIdentityType);
+                    patient.setGovtIdentityNo(new StringType(benef.getBeneficiaryIdentites().get(0).getIdentityNo()));
+                    Coding codingGovtHealthProgramType = new Coding();
+                    codingGovtHealthProgramType.setCode(benef.getBeneficiaryIdentites().get(0).getIdentityTypeId()+"");
+                    codingGovtHealthProgramType.setDisplay(benef.getBeneficiaryIdentites().get(0).getIdentityType());
 //                patient.setGovtHealthProgramType(codingGovtHealthProgramType);
+                }
+//
 //                patient.setGovtHealthProgramId(benef.);
 
                 List<HumanName> listName = new ArrayList<>();
@@ -177,15 +185,9 @@ public class PatientExtProvider implements IResourceProvider {
                 concept.setCoding(listForConcept);
                 concept.setText(benef.getBeneficiaryDetails().getMaritalStatus());
                 patient.setMaritalStatus(concept);
+
+                listRes.add(patient);
             }
-
-//        HumanName human = new HumanName();
-//        patient.setName()
-//        String benID = registeredBenJson.getAsJsonObject("data").get("response").getAsString();
-//        String[] arrOfResponse = benID.split(":");
-
-//        method.setResource(patientExt);
-//        return method;
         }
         catch (Exception e){
             e.printStackTrace();
