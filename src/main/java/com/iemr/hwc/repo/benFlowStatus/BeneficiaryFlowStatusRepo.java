@@ -414,6 +414,10 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 			@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID,
 			@Param("fromDate") Timestamp fromDate);
 
+	// get visit by location and modify_date
+	@Query("SELECT  t from BeneficiaryFlowStatus t WHERE t.villageID = :villageID AND t.modified_date > :lastModDate ORDER BY t.visitDate DESC ")
+	public ArrayList<BeneficiaryFlowStatus> getVisitByLocationAndLastModifDate(@Param("villageID") Integer villageID, @Param("lastModDate") Timestamp lastModDate);
+
 	/**
 	 * updating lab technician flag to 3 from 3 , as soon as receive response from
 	 * fetosense

@@ -21,6 +21,7 @@
 */
 package com.iemr.hwc.repo.nurse;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +56,9 @@ public interface BenVisitDetailRepo extends CrudRepository<BeneficiaryVisitDetai
 
 	@Query(" SELECT bvd from BeneficiaryVisitDetail bvd WHERE bvd.beneficiaryRegID = :benRegID AND bvd.visitCode = :visitCode")
 	public BeneficiaryVisitDetail getVisitDetails(@Param("benRegID") Long benRegID, @Param("visitCode") Long visitCode);
+
+	@Query(" SELECT bvd from BeneficiaryVisitDetail bvd WHERE bvd.benVisitID = :benVisitID AND bvd.lastModDate > :lastModDate ORDER BY bvd.lastModDate DESC")
+	public BeneficiaryVisitDetail getVisitDetailsByVisitIDAndLastModifDate(@Param("benVisitID") Long benVisitID, @Param("lastModDate") Timestamp lastModDate);
 	
 	@Query(" SELECT bvd from BeneficiaryVisitDetail bvd WHERE bvd.beneficiaryRegID = :benRegID AND bvd.visitCode = :visitCode")
 	public BeneficiaryVisitDetail getSubVisitCategory(@Param("benRegID") Long benRegID, @Param("visitCode") Long visitCode);
