@@ -36,6 +36,11 @@ public class ImmunizationValidation {
             errMessages.add("Mandatory extension 'vanId' missing");
         }
 
+        if (!immunizationExt.getPatient().hasDisplay()) {
+            logger.error("Error while validating Immunization resource. benRegID is a mandatory field and is MISSING");
+            errMessages.add("Mandatory field 'display'(benRegID) in 'patient' missing");
+        }
+
         //If vaccination is done then validations for type of vaccine, type of dose
         if (immunizationExt.getStatus().getDisplay().equalsIgnoreCase("completed")) {
             if (!immunizationExt.getVaccineCode().hasText()) {

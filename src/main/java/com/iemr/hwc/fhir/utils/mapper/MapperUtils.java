@@ -6,6 +6,7 @@ import com.iemr.hwc.fhir.dto.beneficiary.BeneficiaryDTO;
 import com.iemr.hwc.fhir.dto.covidVaccineStatus.CovidVaccineStatusDTO;
 import com.iemr.hwc.fhir.dto.examinationDetails.ExaminationDetailsMainDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.HistoryDetailsMainDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.medicationHistory.MedicationHistoryDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastHistoryDTO;
 import com.iemr.hwc.fhir.dto.mandatoryFieldsDTO.MandatoryFieldsDTO;
 import com.iemr.hwc.fhir.dto.nurseForm.NurseFormDTO;
@@ -17,6 +18,7 @@ import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
 import com.iemr.hwc.fhir.model.condition.ConditionExt;
 import com.iemr.hwc.fhir.model.encounter.EncounterExt;
 import com.iemr.hwc.fhir.model.immunization.ImmunizationExt;
+import com.iemr.hwc.fhir.model.medicationStatement.MedicationStatementExt;
 import com.iemr.hwc.fhir.model.observation.ObservationExt;
 import com.iemr.hwc.fhir.model.patient.PatientExt;
 import org.mapstruct.Mapper;
@@ -171,7 +173,7 @@ public interface MapperUtils {
     @Mappings({@Mapping(target = "providerServiceMapID", expression = "java(null == immunizationExt.getProviderServiceMapId().asStringValue() ? null : Integer.parseInt(immunizationExt.getProviderServiceMapId().asStringValue()))"),
             @Mapping(target = "parkingPlaceID", expression = "java(null == immunizationExt.getParkingPlaceID().asStringValue() ? null : Integer.parseInt(immunizationExt.getParkingPlaceID().asStringValue()))"),
             @Mapping(target = "vanID", expression = "java(null == immunizationExt.getVanID().asStringValue() ? null : Integer.parseInt(immunizationExt.getVanID().asStringValue()))"),
-            @Mapping(target = "beneficiaryRegID", expression = "java(immunizationExt.getPatient().getReference())"),
+            @Mapping(target = "beneficiaryRegID", expression = "java(immunizationExt.getPatient().getDisplay())"),
             @Mapping(target = "createdBy", expression = "java(immunizationExt.getCreatedBy().asStringValue())"),
             @Mapping(target = "modifiedBy", expression = "java(immunizationExt.getModifiedBy().asStringValue())")
     })
@@ -190,6 +192,17 @@ public interface MapperUtils {
             @Mapping(target = "vaccineStatus", expression = "java(immunizationExt.getStatus().getDisplay().equalsIgnoreCase(\"completed\") ? \"Yes\" : \"No\" )")
     })
     CovidVaccineStatusDTO immunizationResourceToCovidVaccineStatusDTO(ImmunizationExt immunizationExt, MandatoryFieldsDTO mandatoryFieldsDTO);
+
+    @Mappings({@Mapping(target = "providerServiceMapID", expression = "java(Integer.parseInt(medicationStatementExt.getProviderServiceMapId().asStringValue()))"),
+            @Mapping(target = "parkingPlaceID", expression = "java(Integer.parseInt(medicationStatementExt.getParkingPlaceID().asStringValue()))"),
+            @Mapping(target = "vanID", expression = "java(Integer.parseInt(medicationStatementExt.getVanID().asStringValue()))"),
+            @Mapping(target = "benFlowID", expression = "java(medicationStatementExt.getBenFlowID().asStringValue())"),
+            @Mapping(target = "beneficiaryRegID", expression = "java(medicationStatementExt.getSubject().getDisplay())"),
+            @Mapping(target = "createdBy", expression = "java(medicationStatementExt.getCreatedBy().asStringValue())"),
+    })
+    MandatoryFieldsDTO medicationStatementResourceToMandatoryFieldsDTO(MedicationStatementExt medicationStatementExt);
+
+    MedicationHistoryDTO mandatoryFieldsDTOToMedicationHistoryDTO(MandatoryFieldsDTO mandatoryFieldsDTO);
 
 
 

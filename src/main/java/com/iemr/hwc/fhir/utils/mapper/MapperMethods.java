@@ -5,17 +5,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.iemr.hwc.fhir.dto.beneficiary.benIdentities.GovtIdentitiesDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.medicationHistory.MedicationListDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastIllnessDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastSurgeryDTO;
 import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
 import com.iemr.hwc.fhir.model.encounter.EncounterExt;
+import com.iemr.hwc.fhir.model.medicationStatement.MedicationStatementExt;
 import com.iemr.hwc.fhir.model.observation.ObservationExt;
 import com.iemr.hwc.fhir.model.patient.PatientExt;
 import com.iemr.hwc.utils.exception.IEMRException;
 import com.iemr.hwc.utils.mapper.InputMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -151,5 +150,23 @@ public class MapperMethods {
             }
         }
         return pastSurgeryDTOList;
+    }
+
+    public static List<MedicationListDTO> medicationToMedicationListDTO(MedicationStatementExt medicationStatementExt) {
+        List<MedicationListDTO> medicationDTOList = new ArrayList<>();
+        for (int i=0 ; i < medicationStatementExt.getMedicationCodeableConcept().getCoding().size() ; i++){
+            MedicationListDTO medicationListDTO = new MedicationListDTO();
+
+            medicationListDTO.setCurrentMedication(medicationStatementExt.getMedicationCodeableConcept().getCoding().get(i).getDisplay());
+
+            if(medicationStatementExt.getMedicationCodeableConcept().getCoding().get(i).hasCode()) {
+                String[] arr = medicationStatementExt.getMedicationCodeableConcept().getCoding().get(i).getCode().split(",");
+                medicationListDTO.setTimePeriodAgo(arr[0]);
+                medicationListDTO.setTimePeriodUnit(arr[1]);
+            }
+
+            medicationDTOList.add(medicationListDTO);
+        }
+        return medicationDTOList;
     }
 }
