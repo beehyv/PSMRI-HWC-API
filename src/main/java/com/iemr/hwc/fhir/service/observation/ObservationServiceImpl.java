@@ -7,8 +7,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.iemr.hwc.data.anc.BenMedHistory;
+import com.iemr.hwc.data.anc.BenPersonalHabit;
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastHistoryDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.personalHistory.AlcoholListDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.personalHistory.PersonalHistoryDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.personalHistory.TobaccoListDTO;
 import com.iemr.hwc.fhir.dto.mandatoryFieldsDTO.MandatoryFieldsDTO;
 import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
 import com.iemr.hwc.fhir.model.observation.ObservationExt;
@@ -26,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 
 @Service
 public class ObservationServiceImpl implements ObservationService{
@@ -143,7 +148,47 @@ public class ObservationServiceImpl implements ObservationService{
                 logger.error("Encountered custom exception - IEMRException while trying to map Json with BenMedHistory class using Input Mapper " + e);
                 throw new InternalErrorException("Error mapping json to BenMedHistory class " + e);
             }
-        }else {
+        }
+
+        else if (observationExt.getCode().hasText() &&
+                observationExt.getCode().getText().equalsIgnoreCase("Personal habits")) {
+            PersonalHistoryDTO personalHistoryDTO = mapper.mandatoryFieldsToPersonalHistoryDTO(mandatoryFieldsDTO);
+
+            if (observationExt.hasComponent()){
+                for (int i=0; i<observationExt.getComponent().size(); i++){
+                    if(observationExt.getComponent().get(i).getCode().hasText() &&
+                            observationExt.getComponent().get(i).hasValueStringType()){
+
+                        if (observationExt.getComponent().get(i).getCode().getText().equalsIgnoreCase("tobaccoUseStatus")){
+                            personalHistoryDTO.setTobaccoUseStatus(observationExt.getComponent().get(i).getValueStringType().asStringValue());
+                        }
+
+                        if(observationExt.getComponent().get(i).getCode().getText().equalsIgnoreCase("alcoholIntakeStatus")) {
+                            personalHistoryDTO.setAlcoholIntakeStatus(observationExt.getComponent().get(i).getValueStringType().asStringValue());
+                        }
+                    }
+
+                }
+            }
+
+            personalHistoryDTO.setTobaccoList(new ArrayList<TobaccoListDTO>());
+            personalHistoryDTO.setAlcoholList(new ArrayList<AlcoholListDTO>());
+
+            String personalHabitDTOGson = new GsonBuilder().create().toJson(personalHistoryDTO);
+            JsonObject personalHabitJson = new JsonParser().parse(personalHabitDTOGson).getAsJsonObject();
+
+            try{
+                BenPersonalHabit personalHabit = InputMapper.gson().fromJson(personalHabitJson,
+                        BenPersonalHabit.class);
+
+                commonNurseService.updateBenPersonalHistory(personalHabit);
+            }catch (IEMRException e){
+                logger.error("Encountered custom exception - IEMRException while trying to map Json with BenPersonalHabit class using Input Mapper " + e);
+                throw new InternalErrorException("Error mapping json to BenPersonalHabit class " + e);
+            }
+        }
+
+        else {
             logger.error("sub-field 'text' of 'code' missing or is unrecognizable. Unable to get the type of history contained in the given History Observation resource");
             throw new UnprocessableEntityException("Cannot determine type of history from given History Observation resource. Sub-field 'text' of 'code' MISSING or UNRECOGNIZABLE ");
         }

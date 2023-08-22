@@ -7,6 +7,7 @@ import com.iemr.hwc.fhir.dto.covidVaccineStatus.CovidVaccineStatusDTO;
 import com.iemr.hwc.fhir.dto.examinationDetails.ExaminationDetailsMainDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.HistoryDetailsMainDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastHistoryDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.personalHistory.PersonalHistoryDTO;
 import com.iemr.hwc.fhir.dto.mandatoryFieldsDTO.MandatoryFieldsDTO;
 import com.iemr.hwc.fhir.dto.nurseForm.NurseFormDTO;
 import com.iemr.hwc.fhir.dto.visitDetailsMain.VisitDetailsMainDTO;
@@ -192,6 +193,5 @@ public interface MapperUtils {
     CovidVaccineStatusDTO immunizationResourceToCovidVaccineStatusDTO(ImmunizationExt immunizationExt, MandatoryFieldsDTO mandatoryFieldsDTO);
 
 
-
-
+    PersonalHistoryDTO mandatoryFieldsToPersonalHistoryDTO(MandatoryFieldsDTO mandatoryFieldsDTO);
 }

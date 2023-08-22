@@ -17,6 +17,7 @@ public class PersonalHistoryDTO {
     private String allergyStatus;
     private String beneficiaryRegID;
     private Integer providerServiceMapID;
+    private String visitCode;
     private String benVisitID;
     private String createdBy;
     private Integer vanID;
