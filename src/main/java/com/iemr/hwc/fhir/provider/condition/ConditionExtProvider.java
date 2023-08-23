@@ -1,18 +1,23 @@
 package com.iemr.hwc.fhir.provider.condition;
 
 import ca.uhn.fhir.rest.annotation.Create;
+import ca.uhn.fhir.rest.annotation.RequiredParam;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
+import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.param.DateParam;
+import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
+import com.iemr.hwc.data.nurse.BeneficiaryChiefComplaint;
 import com.iemr.hwc.fhir.model.condition.ConditionExt;
 import com.iemr.hwc.fhir.service.condition.ConditionService;
+import com.iemr.hwc.service.nurse.NurseServiceImpl;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.OperationOutcome;
+import org.hl7.fhir.r4.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +26,9 @@ public class ConditionExtProvider implements IResourceProvider {
 
     @Autowired
     private ConditionService conditionService;
+
+    @Autowired
+    private NurseServiceImpl nurseServiceImpl;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -58,5 +66,61 @@ public class ConditionExtProvider implements IResourceProvider {
         method.setOperationOutcome(opOutcome);
         method.setResource(conditionService.addNewChiefComplaint(theRequest,conditionExt));
         return method;
+    }
+
+    @Search()
+    public List<ConditionExt> findChiefComplaintByDistrictAndLastModifDate(HttpServletRequest theRequest, @RequiredParam(name = "providerServiceMapId") StringParam providerServiceMapId, @RequiredParam(name = "vanID") StringParam vanID, @RequiredParam(name = "lastModif") DateParam lastModifyDate) {
+
+        List<ConditionExt> listRes = new ArrayList<>();
+        try {
+            String authorization = theRequest.getHeader("Authorization");
+            List<BeneficiaryChiefComplaint> listChiefComplaint = nurseServiceImpl.getChiefComplaintByLocationAndLastModifDate(Integer.parseInt(providerServiceMapId.getValue()), Integer.parseInt(vanID.getValue()),
+                    new Timestamp(lastModifyDate.getValue().getTime()));
+//
+            System.out.println("List chief compliant "+listChiefComplaint.size());
+            for (BeneficiaryChiefComplaint benef:listChiefComplaint) {
+                ConditionExt condition = new ConditionExt();
+                condition.setId(benef.getID()+"");
+                condition.setBeneficiaryID(new StringType(benef.getBeneficiaryRegID()+""));
+                condition.setProviderServiceMapId(new StringType(benef.getProviderServiceMapID()+""));
+                condition.setVanID(new StringType(benef.getVanID()+""));
+                condition.setParkingPlaceID(new StringType(benef.getParkingPlaceID()+""));
+                condition.setCreatedBy(new StringType(benef.getCreatedBy()));
+                condition.setBeneficiaryRegID(new StringType(benef.getBeneficiaryRegID()+""));
+                condition.setBenFlowID(new StringType(""));
+
+                Coding coding = new Coding();
+                coding.setCode(benef.getUnitOfDuration());
+                coding.setDisplay(benef.getDuration()+"");
+                condition.setDuration(coding);
+
+                Reference ref= new Reference();
+                ref.setReference(benef.getID()+"");
+                condition.setSubject(ref);
+
+                CodeableConcept concept = new CodeableConcept();
+                List<Coding> listCoding = new ArrayList<>();
+                Coding coding1 = new Coding();
+                coding1.setSystem("http://snomed.info/sct");
+                coding1.setCode("1");
+                coding1.setDisplay(benef.getT_benVisitDetail().getVisitCategory());
+                listCoding.add(coding1);
+                concept.setCoding(listCoding);
+                condition.setCode(concept);
+
+                List<Annotation> listAnnot = new ArrayList<>();
+                Annotation annot = new Annotation();
+                annot.setText(benef.getT_benVisitDetail().getVisitReason());
+                listAnnot.add(annot);
+                condition.setNote(listAnnot);
+
+                listRes.add(condition);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return listRes;
     }
 }

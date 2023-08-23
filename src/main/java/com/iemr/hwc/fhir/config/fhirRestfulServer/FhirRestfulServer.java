@@ -45,6 +45,7 @@ public class FhirRestfulServer extends RestfulServer {
         resourceProviders.add(applicationContext.getBean(ConditionExtProvider.class));
         resourceProviders.add(applicationContext.getBean(ObservationExtProvider.class));
         resourceProviders.add(applicationContext.getBean(ImmunizationExtProvider.class));
+        resourceProviders.add(applicationContext.getBean(ConditionExtProvider.class));
         setResourceProviders(resourceProviders);
 
         //Registering Interceptors
