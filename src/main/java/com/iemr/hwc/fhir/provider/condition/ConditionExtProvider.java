@@ -8,10 +8,13 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
-import com.iemr.hwc.data.nurse.BeneficiaryChiefComplaint;
+import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
+import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
+import com.iemr.hwc.data.quickConsultation.BenChiefComplaint;
 import com.iemr.hwc.fhir.model.condition.ConditionExt;
 import com.iemr.hwc.fhir.service.condition.ConditionService;
-import com.iemr.hwc.service.nurse.NurseServiceImpl;
+import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
+import com.iemr.hwc.service.quickConsultation.QuickConsultationServiceImpl;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,10 @@ public class ConditionExtProvider implements IResourceProvider {
     private ConditionService conditionService;
 
     @Autowired
-    private NurseServiceImpl nurseServiceImpl;
+    private BeneficiaryFlowStatusRepo beneficiaryFlowStatusRepo;
+
+    @Autowired
+    private QuickConsultationServiceImpl quickConsultationServiceImpl;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -74,20 +80,25 @@ public class ConditionExtProvider implements IResourceProvider {
         List<ConditionExt> listRes = new ArrayList<>();
         try {
             String authorization = theRequest.getHeader("Authorization");
-            List<BeneficiaryChiefComplaint> listChiefComplaint = nurseServiceImpl.getChiefComplaintByLocationAndLastModifDate(Integer.parseInt(providerServiceMapId.getValue()), Integer.parseInt(vanID.getValue()),
+            List<BenChiefComplaint> listChiefComplaint = quickConsultationServiceImpl.getChiefComplaintByLocationAndLastModifDate(Integer.parseInt(providerServiceMapId.getValue()), Integer.parseInt(vanID.getValue()),
                     new Timestamp(lastModifyDate.getValue().getTime()));
-//
-            System.out.println("List chief compliant "+listChiefComplaint.size());
-            for (BeneficiaryChiefComplaint benef:listChiefComplaint) {
+
+            for (BenChiefComplaint benef:listChiefComplaint) {
+                BeneficiaryFlowStatus beneficiaryFlowStatus = beneficiaryFlowStatusRepo.getBenFlowByVisitIDAndVisitCode(benef.getBenVisitID(), benef.getVisitCode());
                 ConditionExt condition = new ConditionExt();
-                condition.setId(benef.getID()+"");
-                condition.setBeneficiaryID(new StringType(benef.getBeneficiaryRegID()+""));
+                condition.setId(benef.getBenChiefComplaintID()+"");
                 condition.setProviderServiceMapId(new StringType(benef.getProviderServiceMapID()+""));
                 condition.setVanID(new StringType(benef.getVanID()+""));
                 condition.setParkingPlaceID(new StringType(benef.getParkingPlaceID()+""));
                 condition.setCreatedBy(new StringType(benef.getCreatedBy()));
                 condition.setBeneficiaryRegID(new StringType(benef.getBeneficiaryRegID()+""));
-                condition.setBenFlowID(new StringType(""));
+                if (beneficiaryFlowStatus != null){
+                    condition.setBeneficiaryID(new StringType(beneficiaryFlowStatus.getBeneficiaryID()+""));
+                    condition.setBenFlowID(new StringType(beneficiaryFlowStatus.getBenFlowID()+""));
+                }
+                else {
+                    throw new ResourceNotFoundException("No record found for given benVisitID and BenVisitCode");
+                }
 
                 Coding coding = new Coding();
                 coding.setCode(benef.getUnitOfDuration());
@@ -95,22 +106,22 @@ public class ConditionExtProvider implements IResourceProvider {
                 condition.setDuration(coding);
 
                 Reference ref= new Reference();
-                ref.setReference(benef.getID()+"");
+                ref.setReference(benef.getBenChiefComplaintID()+"");
                 condition.setSubject(ref);
 
                 CodeableConcept concept = new CodeableConcept();
                 List<Coding> listCoding = new ArrayList<>();
                 Coding coding1 = new Coding();
                 coding1.setSystem("http://snomed.info/sct");
-                coding1.setCode("1");
-                coding1.setDisplay(benef.getT_benVisitDetail().getVisitCategory());
+                coding1.setCode(benef.getChiefComplaintID()+"");
+                coding1.setDisplay(benef.getChiefComplaint());
                 listCoding.add(coding1);
                 concept.setCoding(listCoding);
                 condition.setCode(concept);
 
                 List<Annotation> listAnnot = new ArrayList<>();
                 Annotation annot = new Annotation();
-                annot.setText(benef.getT_benVisitDetail().getVisitReason());
+                annot.setText(benef.getDescription());
                 listAnnot.add(annot);
                 condition.setNote(listAnnot);
 

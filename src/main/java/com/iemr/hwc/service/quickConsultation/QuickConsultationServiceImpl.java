@@ -641,4 +641,9 @@ public class QuickConsultationServiceImpl implements QuickConsultationService {
 		return r;
 	}
 
+	public List<BenChiefComplaint> getChiefComplaintByLocationAndLastModifDate(Integer providerServiceMapId, Integer vanID, Timestamp lastModifDate) {
+		List<BenChiefComplaint> listBenChiefCompalintOBJs = benChiefComplaintRepo.getChiefComplaintByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
+		return listBenChiefCompalintOBJs;
+	}
+
 }

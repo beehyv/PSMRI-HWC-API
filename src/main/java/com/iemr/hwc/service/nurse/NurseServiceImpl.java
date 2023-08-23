@@ -29,6 +29,7 @@ import java.util.Map;
 
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
 import com.iemr.hwc.data.nurse.BeneficiaryChiefComplaint;
+import com.iemr.hwc.data.quickConsultation.BenChiefComplaint;
 import com.iemr.hwc.fhir.dto.visitDetailsMain.visitDetails.BenVisitsDTO;
 import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
 import com.iemr.hwc.repo.quickConsultation.BenChiefComplaintRepo;
@@ -115,11 +116,6 @@ public class NurseServiceImpl implements NurseService {
 			benVisitDetailsList.add(benVisitsDTO);
 		}
 		return benVisitDetailsList;
-	}
-
-	public List<BeneficiaryChiefComplaint> getChiefComplaintByLocationAndLastModifDate(Integer providerServiceMapId, Integer vanID, Timestamp lastModifDate) {
-		List<BeneficiaryChiefComplaint> listBenChiefCompalintOBJs = benChiefComplaintRepo.getChiefComplaintByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
-		return listBenChiefCompalintOBJs;
 	}
 
 }
