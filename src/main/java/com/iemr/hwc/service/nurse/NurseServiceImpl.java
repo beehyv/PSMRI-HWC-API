@@ -28,8 +28,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
+import com.iemr.hwc.data.nurse.BeneficiaryChiefComplaint;
 import com.iemr.hwc.fhir.dto.BenVisitsDTO;
 import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
+import com.iemr.hwc.repo.quickConsultation.BenChiefComplaintRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,9 @@ public class NurseServiceImpl implements NurseService {
 
 	@Autowired
 	private BeneficiaryFlowStatusRepo benFlowStatusRepo;
+
+	@Autowired
+	private BenChiefComplaintRepo benChiefComplaintRepo;
 
 	@Autowired
 	public void setBenVisitDetailRepo(BenVisitDetailRepo benVisitDetailRepo) {
@@ -115,6 +120,13 @@ public class NurseServiceImpl implements NurseService {
 		}
 		System.out.println("list benvisitDetails size "+benVisitDetailsList.size());
 		return benVisitDetailsList;
+//		return new Gson().toJson(resMap);
+	}
+
+	public List<BeneficiaryChiefComplaint> getChiefComplaintByLocationAndLastModifDate(Integer providerServiceMapId, Integer vanID, Timestamp lastModifDate) {
+		List<BeneficiaryChiefComplaint> listBenChiefCompalintOBJs = benChiefComplaintRepo.getChiefComplaintByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
+		System.out.println("list benvisit size "+listBenChiefCompalintOBJs.size());
+		return listBenChiefCompalintOBJs;
 //		return new Gson().toJson(resMap);
 	}
 
