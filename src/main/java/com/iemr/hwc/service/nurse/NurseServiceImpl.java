@@ -28,11 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
-import com.iemr.hwc.data.nurse.BeneficiaryChiefComplaint;
-import com.iemr.hwc.data.quickConsultation.BenChiefComplaint;
 import com.iemr.hwc.fhir.dto.visitDetailsMain.visitDetails.BenVisitsDTO;
 import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
-import com.iemr.hwc.repo.quickConsultation.BenChiefComplaintRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -51,9 +48,6 @@ public class NurseServiceImpl implements NurseService {
 
 	@Autowired
 	private BeneficiaryFlowStatusRepo benFlowStatusRepo;
-
-	@Autowired
-	private BenChiefComplaintRepo benChiefComplaintRepo;
 
 	@Autowired
 	public void setBenVisitDetailRepo(BenVisitDetailRepo benVisitDetailRepo) {

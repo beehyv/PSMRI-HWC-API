@@ -13,8 +13,8 @@ import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
 import com.iemr.hwc.data.quickConsultation.BenChiefComplaint;
 import com.iemr.hwc.fhir.model.condition.ConditionExt;
 import com.iemr.hwc.fhir.service.condition.ConditionService;
+import com.iemr.hwc.fhir.service.condition.ConditionServiceImpl;
 import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
-import com.iemr.hwc.service.quickConsultation.QuickConsultationServiceImpl;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.r4.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class ConditionExtProvider implements IResourceProvider {
     private BeneficiaryFlowStatusRepo beneficiaryFlowStatusRepo;
 
     @Autowired
-    private QuickConsultationServiceImpl quickConsultationServiceImpl;
+    private ConditionServiceImpl conditionServiceImpl;
 
     @Override
     public Class<? extends IBaseResource> getResourceType() {
@@ -80,7 +80,7 @@ public class ConditionExtProvider implements IResourceProvider {
         List<ConditionExt> listRes = new ArrayList<>();
         try {
             String authorization = theRequest.getHeader("Authorization");
-            List<BenChiefComplaint> listChiefComplaint = quickConsultationServiceImpl.getChiefComplaintByLocationAndLastModifDate(Integer.parseInt(providerServiceMapId.getValue()), Integer.parseInt(vanID.getValue()),
+            List<BenChiefComplaint> listChiefComplaint = conditionServiceImpl.getChiefComplaintByLocationAndLastModifDate(Integer.parseInt(providerServiceMapId.getValue()), Integer.parseInt(vanID.getValue()),
                     new Timestamp(lastModifyDate.getValue().getTime()));
 
             for (BenChiefComplaint benef:listChiefComplaint) {

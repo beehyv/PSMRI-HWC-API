@@ -14,6 +14,7 @@ import com.iemr.hwc.fhir.model.condition.ConditionExt;
 import com.iemr.hwc.fhir.utils.mapper.MapperUtils;
 import com.iemr.hwc.fhir.utils.validation.ConditionValidation;
 import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
+import com.iemr.hwc.repo.quickConsultation.BenChiefComplaintRepo;
 import com.iemr.hwc.service.common.transaction.CommonNurseServiceImpl;
 import com.iemr.hwc.service.snomedct.SnomedService;
 import com.iemr.hwc.utils.exception.IEMRException;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,6 +41,9 @@ public class ConditionServiceImpl implements ConditionService {
 
     @Autowired
     private BeneficiaryFlowStatusRepo beneficiaryFlowStatusRepo;
+
+    @Autowired
+    private BenChiefComplaintRepo benChiefComplaintRepo;
 
     @Autowired
     private SnomedService snomedService;
@@ -91,5 +96,10 @@ public class ConditionServiceImpl implements ConditionService {
         }
 
         return conditionExt;
+    }
+
+    public List<BenChiefComplaint> getChiefComplaintByLocationAndLastModifDate(Integer providerServiceMapId, Integer vanID, Timestamp lastModifDate) {
+        List<BenChiefComplaint> listBenChiefCompalintOBJs = benChiefComplaintRepo.getChiefComplaintByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
+        return listBenChiefCompalintOBJs;
     }
 }
