@@ -5,24 +5,33 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.iemr.hwc.fhir.dto.beneficiary.benIdentities.GovtIdentitiesDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.comorbidConditions.ConcurrentConditionsDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.familyHistory.FamilyDiseaseListDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastIllnessDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastSurgeryDTO;
 import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
 import com.iemr.hwc.fhir.model.encounter.EncounterExt;
+import com.iemr.hwc.fhir.model.familyMemberHistory.FamilyMemberHistoryExt;
 import com.iemr.hwc.fhir.model.observation.ObservationExt;
 import com.iemr.hwc.fhir.model.patient.PatientExt;
+import com.iemr.hwc.repo.masterrepo.anc.DiseaseTypeRepo;
 import com.iemr.hwc.utils.exception.IEMRException;
 import com.iemr.hwc.utils.mapper.InputMapper;
+import org.hl7.fhir.r4.model.FamilyMemberHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Component
 public class MapperMethods {
+
+    @Autowired
+    private DiseaseTypeRepo diseaseTypeRepo;
 
     public static String getFirstName(PatientExt patientExt) {
             return patientExt.getNameFirstRep().getGiven().get(0).toString();
@@ -151,5 +160,70 @@ public class MapperMethods {
             }
         }
         return pastSurgeryDTOList;
+    }
+
+    public Map<String,Object> fMHistoryResourceToCoMorbidAndFMList(FamilyMemberHistoryExt fMHistoryExt){
+        List<ConcurrentConditionsDTO> conditionsDTOList = new ArrayList<>();
+        List<FamilyDiseaseListDTO> familyDiseaseList = new ArrayList<>();
+        for (FamilyMemberHistory.FamilyMemberHistoryConditionComponent obj : fMHistoryExt.getCondition()) {
+
+            //Mapping the coMorbid Concurrent condition list
+            ConcurrentConditionsDTO conditionsDTO = new ConcurrentConditionsDTO();
+
+            List<String> comorbiditySplitList = new ArrayList<>();
+
+            if (obj.getCode().hasCoding()){
+                conditionsDTO.setComorbidConditionID(obj.getCode().getCodingFirstRep().getCode());
+                conditionsDTO.setComorbidCondition(obj.getCode().getCodingFirstRep().getDisplay());
+                conditionsDTO.setIsForHistory(!obj.getCode().getCodingFirstRep().hasUserSelected() || !obj.getCode().getCodingFirstRep().getUserSelected());
+
+                comorbiditySplitList = Arrays.stream(obj.getCode().getCodingFirstRep().getDisplay().split(" ")).collect(Collectors.toList());
+
+            }
+
+            if (obj.hasOnsetAge()) {
+                conditionsDTO.setTimePeriodAgo(obj.getOnsetAge().hasValue() ? obj.getOnsetAge().getValue().toString() : null);
+                conditionsDTO.setTimePeriodUnit(obj.getOnsetAge().getUnit());
+            }
+            conditionsDTO.setOtherComorbidCondition(obj.getCode().getText());
+
+            conditionsDTOList.add(conditionsDTO);
+
+            //Mapping the family disease list
+            FamilyDiseaseListDTO familyDiseaseListDTO = new FamilyDiseaseListDTO();
+
+            ArrayList<Object[]> diseaseTypeObj = diseaseTypeRepo.getDiseaseTypesFromSearchString(!comorbiditySplitList.isEmpty() ? comorbiditySplitList.get(0) : "Other");
+
+            if (!diseaseTypeObj.isEmpty()) {
+
+                familyDiseaseListDTO.setDiseaseTypeID(String.valueOf(diseaseTypeObj.get(0)[0]));
+                familyDiseaseListDTO.setDiseaseType((String) diseaseTypeObj.get(0)[1]);
+                familyDiseaseListDTO.setSnomedCode((String) diseaseTypeObj.get(0)[2]);
+                familyDiseaseListDTO.setSnomedTerm((String) diseaseTypeObj.get(0)[3]);
+
+                if (((String) diseaseTypeObj.get(0)[1]).equalsIgnoreCase("other")) {
+                    familyDiseaseListDTO.setOtherDiseaseType(conditionsDTO.getOtherComorbidCondition());
+                }
+
+            } else {
+                familyDiseaseListDTO.setDiseaseTypeID(String.valueOf(13));
+                familyDiseaseListDTO.setDiseaseType("Other");
+                familyDiseaseListDTO.setOtherDiseaseType(conditionsDTO.getComorbidCondition());
+            }
+
+            if (obj.hasNote() && obj.getNoteFirstRep().hasText()) {
+
+                String[] memberList = obj.getNoteFirstRep().getText().split(",");
+                familyDiseaseListDTO.setFamilyMembers(memberList);
+            }
+
+            familyDiseaseList.add(familyDiseaseListDTO);
+        }
+
+        Map<String, Object> mappedLists = new HashMap<>();
+        mappedLists.put("conditionList",conditionsDTOList);
+        mappedLists.put("fMHistoryList",familyDiseaseList);
+
+        return mappedLists;
     }
 }

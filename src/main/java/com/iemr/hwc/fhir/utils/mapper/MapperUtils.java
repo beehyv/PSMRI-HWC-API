@@ -6,6 +6,8 @@ import com.iemr.hwc.fhir.dto.beneficiary.BeneficiaryDTO;
 import com.iemr.hwc.fhir.dto.covidVaccineStatus.CovidVaccineStatusDTO;
 import com.iemr.hwc.fhir.dto.examinationDetails.ExaminationDetailsMainDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.HistoryDetailsMainDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.comorbidConditions.ComorbidConditionsDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.familyHistory.FamilyHistoryDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastHistoryDTO;
 import com.iemr.hwc.fhir.dto.mandatoryFieldsDTO.MandatoryFieldsDTO;
 import com.iemr.hwc.fhir.dto.nurseForm.NurseFormDTO;
@@ -16,6 +18,7 @@ import com.iemr.hwc.fhir.dto.visitDetailsMain.visitDetails.VisitDetailsDTO;
 import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
 import com.iemr.hwc.fhir.model.condition.ConditionExt;
 import com.iemr.hwc.fhir.model.encounter.EncounterExt;
+import com.iemr.hwc.fhir.model.familyMemberHistory.FamilyMemberHistoryExt;
 import com.iemr.hwc.fhir.model.immunization.ImmunizationExt;
 import com.iemr.hwc.fhir.model.observation.ObservationExt;
 import com.iemr.hwc.fhir.model.patient.PatientExt;
@@ -192,6 +195,16 @@ public interface MapperUtils {
     CovidVaccineStatusDTO immunizationResourceToCovidVaccineStatusDTO(ImmunizationExt immunizationExt, MandatoryFieldsDTO mandatoryFieldsDTO);
 
 
+    @Mappings({@Mapping(target = "providerServiceMapID", expression = "java(Integer.parseInt(familyMemberHistoryExt.getProviderServiceMapId().asStringValue()))"),
+            @Mapping(target = "parkingPlaceID", expression = "java(Integer.parseInt(familyMemberHistoryExt.getParkingPlaceID().asStringValue()))"),
+            @Mapping(target = "vanID", expression = "java(Integer.parseInt(familyMemberHistoryExt.getVanID().asStringValue()))"),
+            @Mapping(target = "benFlowID", expression = "java(familyMemberHistoryExt.getBenFlowID().asStringValue())"),
+            @Mapping(target = "beneficiaryRegID", expression = "java(familyMemberHistoryExt.getPatient().getDisplay())"),
+            @Mapping(target = "createdBy", expression = "java(familyMemberHistoryExt.getCreatedBy().asStringValue())"),
+    })
+    MandatoryFieldsDTO fMHistoryResourceToMandatoryFieldsDTO(FamilyMemberHistoryExt familyMemberHistoryExt);
 
+    ComorbidConditionsDTO mandatoryFieldsDTOToComorbidConditionsDTO(MandatoryFieldsDTO mandatoryFieldsDTO);
 
+    FamilyHistoryDTO mandatoryFieldsDTOToFamilyHistoryDTO(MandatoryFieldsDTO mandatoryFieldsDTO);
 }

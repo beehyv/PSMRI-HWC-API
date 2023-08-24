@@ -38,4 +38,8 @@ public interface DiseaseTypeRepo extends CrudRepository<DiseaseType, Short> {
 	@Query(" SELECT diseaseTypeID, diseaseType, snomedCode, snomedTerm FROM DiseaseType WHERE deleted = false "
 			+ " ORDER BY diseaseType")
 	public ArrayList<Object[]> getDiseaseTypes();
+
+	@Query(" SELECT diseaseTypeID, diseaseType, snomedCode, snomedTerm FROM DiseaseType WHERE deleted = false "
+			+ " AND diseaseType LIKE :term%")
+	ArrayList<Object[]> getDiseaseTypesFromSearchString(@Param("term") String diseaseString);
 }

@@ -13,6 +13,7 @@ public class FamilyHistoryDTO {
     private String beneficiaryRegID;
     private Integer providerServiceMapID;
     private String benVisitID;
+    private String visitCode;
     private String createdBy;
     private Integer vanID;
     private Integer parkingPlaceID;
