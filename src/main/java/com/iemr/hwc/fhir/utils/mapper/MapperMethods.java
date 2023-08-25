@@ -1,6 +1,7 @@
 package com.iemr.hwc.fhir.utils.mapper;
 
 import ca.uhn.fhir.rest.server.exceptions.UnprocessableEntityException;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -151,5 +153,25 @@ public class MapperMethods {
             }
         }
         return pastSurgeryDTOList;
+    }
+
+    public static JsonObject observationExamToJsonObject(ObservationExt observationExt) {
+        JsonObject temp_object = new JsonObject();
+        if (observationExt.hasComponent()){
+            for (int i=0 ; i< observationExt.getComponent().size() ; i++){
+                String key = observationExt.getComponent().get(i).getCode().getText();
+                if(key.equalsIgnoreCase("typeOfDangerSigns")){
+                    String[] dangerSignsArray = observationExt.getComponent().get(i).getValueStringType().asStringValue().split(",");
+                    JsonArray value = new JsonArray();
+                    Arrays.stream(dangerSignsArray).forEach(value::add);
+                    temp_object.add(key,value);
+                }
+                else{
+                    JsonElement value = new JsonPrimitive(observationExt.getComponent().get(i).getValueStringType().asStringValue());
+                    temp_object.add(key,value);
+                }
+            }
+        }
+        return temp_object;
     }
 }

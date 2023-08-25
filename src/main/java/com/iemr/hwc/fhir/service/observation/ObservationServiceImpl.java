@@ -7,7 +7,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.iemr.hwc.data.anc.BenMedHistory;
+import com.iemr.hwc.data.anc.PhyGeneralExamination;
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
+import com.iemr.hwc.fhir.dto.examinationDetails.generalExamination.GeneralExaminationDTO;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastHistoryDTO;
 import com.iemr.hwc.fhir.dto.mandatoryFieldsDTO.MandatoryFieldsDTO;
 import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
@@ -62,6 +64,8 @@ public class ObservationServiceImpl implements ObservationService{
                 return updateVitalsFromObservation(theRequest,observationExt);
             case "History":
                 return createOrUpdateHistoryFromObservation(theRequest, observationExt);
+            case "Exam":
+                return createExaminationFromObservation(theRequest, observationExt);
             default:
                 throw new UnprocessableEntityException("Cannot determine 'category' of given resource. Unknown value for field 'text'.");
         }
@@ -146,6 +150,70 @@ public class ObservationServiceImpl implements ObservationService{
         }else {
             logger.error("sub-field 'text' of 'code' missing or is unrecognizable. Unable to get the type of history contained in the given History Observation resource");
             throw new UnprocessableEntityException("Cannot determine type of history from given History Observation resource. Sub-field 'text' of 'code' MISSING or UNRECOGNIZABLE ");
+        }
+
+        return observationExt;
+    }
+
+
+    private ObservationExt createExaminationFromObservation(HttpServletRequest theRequest, ObservationExt observationExt) throws Exception {
+        validation.createExamObservationValidator(observationExt);
+
+        //Todo - Currently implemented considering all relevant IDs(beneficiaryID, benRegID, benFlowID) are coming in payload.
+        //Todo - If not, might need to write new APIs to fetch necessary IDs through some sort of logic. And then use those further.
+        MandatoryFieldsDTO mandatoryFieldsDTO = mapper.observationResourceToMandatoryFieldsDTO(observationExt);
+
+        BeneficiaryFlowStatus beneficiaryFlowStatus = beneficiaryFlowStatusRepo.getBenDetailsForLeftSidePanel(Long.parseLong(mandatoryFieldsDTO.getBenFlowID()));
+
+        if (beneficiaryFlowStatus !=null ) {
+            mandatoryFieldsDTO.setBenVisitID(beneficiaryFlowStatus.getBenVisitID().toString());
+            mandatoryFieldsDTO.setVisitCode(beneficiaryFlowStatus.getBenVisitCode().toString());
+        }
+        else {
+            logger.error("No beneficiary flow status record found for the provided benFlowID");
+            throw new ResourceNotFoundException("No record found for given benFlowID");
+        }
+
+        JsonObject fieldValueJson = MapperMethods.observationExamToJsonObject(observationExt);
+
+        if (observationExt.getCode().hasText() &&
+                observationExt.getCode().getText().equalsIgnoreCase("General")){
+            GeneralExaminationDTO generalExaminationDTO = new GeneralExaminationDTO();
+            try {
+                generalExaminationDTO = InputMapper.gson().fromJson(fieldValueJson, GeneralExaminationDTO.class);
+            }catch (IEMRException e){
+                logger.error("Encountered custom exception - IEMRException while trying to map Json with GeneralExaminationDTO class using Input Mapper " + e);
+                throw new InternalErrorException("Error mapping json to GeneralExaminationDTO class " + e);
+            }
+
+            generalExaminationDTO.setBeneficiaryRegID(mandatoryFieldsDTO.getBeneficiaryRegID());
+            generalExaminationDTO.setModifiedBy(mandatoryFieldsDTO.getModifiedBy());
+            generalExaminationDTO.setCreatedBy(mandatoryFieldsDTO.getCreatedBy());
+            generalExaminationDTO.setBenVisitID(mandatoryFieldsDTO.getBenVisitID());
+            generalExaminationDTO.setVisitCode(mandatoryFieldsDTO.getVisitCode());
+            generalExaminationDTO.setProviderServiceMapID(mandatoryFieldsDTO.getProviderServiceMapID());
+            generalExaminationDTO.setVanID(mandatoryFieldsDTO.getVanID());
+            generalExaminationDTO.setParkingPlaceID(mandatoryFieldsDTO.getParkingPlaceID());
+
+
+            String generalExamDTOGson = new GsonBuilder().create().toJson(generalExaminationDTO);
+            JsonObject generalExamDTOJson = new JsonParser().parse(generalExamDTOGson).getAsJsonObject();
+
+            try{
+                PhyGeneralExamination generalExamination = InputMapper.gson()
+                        .fromJson(generalExamDTOJson, PhyGeneralExamination.class);
+
+                Long generalExamID  = commonNurseService.savePhyGeneralExamination(generalExamination);
+                observationExt.setId(String.valueOf(generalExamID));
+
+            }catch (IEMRException e){
+                logger.error("Encountered custom exception - IEMRException while trying to map Json with BenMedHistory class using Input Mapper " + e);
+                throw new InternalErrorException("Error mapping json to BenMedHistory class " + e);
+            }
+
+        }else {
+            logger.error("sub-field 'text' of 'code' missing or is unrecognizable. Unable to get the type of Examination contained in the given Exam Observation resource");
+            throw new UnprocessableEntityException("Cannot determine type of Examination from given Exam Observation resource. Sub-field 'text' of 'code' MISSING or UNRECOGNIZABLE ");
         }
 
         return observationExt;

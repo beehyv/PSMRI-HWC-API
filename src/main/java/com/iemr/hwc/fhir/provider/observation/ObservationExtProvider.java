@@ -2,6 +2,7 @@ package com.iemr.hwc.fhir.provider.observation;
 
 import ca.uhn.fhir.rest.annotation.Create;
 import ca.uhn.fhir.rest.annotation.ResourceParam;
+import ca.uhn.fhir.rest.annotation.Update;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.server.IResourceProvider;
 import com.iemr.hwc.fhir.model.observation.ObservationExt;
@@ -25,6 +26,17 @@ public class ObservationExtProvider implements IResourceProvider {
 
     @Create()
     public MethodOutcome createObservation(HttpServletRequest theRequest, @ResourceParam ObservationExt observationExt) throws Exception{
+
+        MethodOutcome method = new MethodOutcome();
+        method.setCreated(true);
+        OperationOutcome opOutcome = new OperationOutcome();
+        method.setOperationOutcome(opOutcome);
+        method.setResource(observationService.createObservation(theRequest,observationExt));
+        return method;
+    }
+
+    @Update
+    public MethodOutcome updateObservation(HttpServletRequest theRequest, @ResourceParam ObservationExt observationExt) throws Exception{
 
         MethodOutcome method = new MethodOutcome();
         method.setCreated(true);

@@ -27,7 +27,9 @@ public class GeneralExaminationDTO {
     private String beneficiaryRegID;
     private Integer providerServiceMapID;
     private String benVisitID;
+    private String visitCode;
     private String createdBy;
+    private String modifiedBy;
     private Integer vanID;
     private Integer parkingPlaceID;
 }
