@@ -21,7 +21,9 @@
 */
 package com.iemr.hwc.repo.nurse;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -67,4 +69,6 @@ public interface BenAnthropometryRepo extends CrudRepository<BenAnthropometryDet
 			+ " WHERE beneficiaryRegID=:benRegID ORDER By ID DESC LIMIT 1 ")
 	public Double getBenLatestHeight(@Param("benRegID") Long benRegID);
 
+	@Query("select a from BenAnthropometryDetail a where (a.providerServiceMapID = :providerServiceMapId OR a.vanID = :vanID) AND a.lastModDate> :lastModDate  ORDER BY a.lastModDate DESC")
+	public List<BenAnthropometryDetail> getBenAnthropometryDetailByLocationAndLastModDate(@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID, @Param("lastModDate") Timestamp lastModDate);
 }

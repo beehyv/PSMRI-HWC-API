@@ -8,6 +8,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.iemr.hwc.data.anc.BenMedHistory;
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
+import com.iemr.hwc.data.nurse.BenAnthropometryDetail;
+import com.iemr.hwc.data.nurse.BenPhysicalVitalDetail;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastHistoryDTO;
 import com.iemr.hwc.fhir.dto.mandatoryFieldsDTO.MandatoryFieldsDTO;
 import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
@@ -16,6 +18,8 @@ import com.iemr.hwc.fhir.utils.mapper.MapperMethods;
 import com.iemr.hwc.fhir.utils.mapper.MapperUtils;
 import com.iemr.hwc.fhir.utils.validation.ObservationValidation;
 import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
+import com.iemr.hwc.repo.nurse.BenAnthropometryRepo;
+import com.iemr.hwc.repo.nurse.BenPhysicalVitalRepo;
 import com.iemr.hwc.service.common.transaction.CommonNurseServiceImpl;
 import com.iemr.hwc.service.generalOPD.GeneralOPDServiceImpl;
 import com.iemr.hwc.utils.exception.IEMRException;
@@ -26,6 +30,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ObservationServiceImpl implements ObservationService{
@@ -45,6 +52,12 @@ public class ObservationServiceImpl implements ObservationService{
 
     @Autowired
     private CommonNurseServiceImpl commonNurseService;
+
+    @Autowired
+    private BenPhysicalVitalRepo benPhysicalVitalRepo;
+
+    @Autowired
+    private BenAnthropometryRepo benAnthropometryRepo;
 
     @Override
     public ObservationExt createObservation(HttpServletRequest theRequest, ObservationExt observationExt) throws Exception{
@@ -149,5 +162,18 @@ public class ObservationServiceImpl implements ObservationService{
         }
 
         return observationExt;
+    }
+
+    @Override
+    public List<VitalDetailsDTO> getVitalsObservationByLocationAndLastModifDate(Integer providerServiceMapId, Integer vanID, Timestamp lastModifDate) {
+        List<VitalDetailsDTO> listVitalsDTO = new ArrayList<>();
+        List<BenPhysicalVitalDetail> listBenPhysicalVitalDetails = benPhysicalVitalRepo.getBenPhysicalVitalDetailByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
+        List<BenAnthropometryDetail> listBenAnthropometryDetails = benAnthropometryRepo.getBenAnthropometryDetailByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
+        if(listBenPhysicalVitalDetails !=null && listBenAnthropometryDetails !=null){
+//            for (int i = 0; i < ; i++) {
+//
+//            }
+        }
+        return listVitalsDTO;
     }
 }
