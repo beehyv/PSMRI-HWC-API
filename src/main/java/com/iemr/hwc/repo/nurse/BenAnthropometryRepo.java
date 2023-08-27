@@ -71,4 +71,7 @@ public interface BenAnthropometryRepo extends CrudRepository<BenAnthropometryDet
 
 	@Query("select a from BenAnthropometryDetail a where (a.providerServiceMapID = :providerServiceMapId OR a.vanID = :vanID) AND a.lastModDate> :lastModDate  ORDER BY a.lastModDate DESC")
 	public List<BenAnthropometryDetail> getBenAnthropometryDetailByLocationAndLastModDate(@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID, @Param("lastModDate") Timestamp lastModDate);
+
+	@Query("select a from BenAnthropometryDetail a where a.benVisitID = :benVisitID AND a.visitCode = :visitCode ")
+	public List<BenAnthropometryDetail> getBenAnthropometryDetailByVisitCodeAndVisitID(@Param("benVisitID") Long benVisitID, @Param("visitCode") Long visitCode);
 }

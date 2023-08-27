@@ -24,6 +24,7 @@ import com.iemr.hwc.service.common.transaction.CommonNurseServiceImpl;
 import com.iemr.hwc.service.generalOPD.GeneralOPDServiceImpl;
 import com.iemr.hwc.utils.exception.IEMRException;
 import com.iemr.hwc.utils.mapper.InputMapper;
+import org.hl7.fhir.r4.model.StringType;
 import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,9 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ObservationServiceImpl implements ObservationService{
@@ -166,13 +169,93 @@ public class ObservationServiceImpl implements ObservationService{
 
     @Override
     public List<VitalDetailsDTO> getVitalsObservationByLocationAndLastModifDate(Integer providerServiceMapId, Integer vanID, Timestamp lastModifDate) {
+        Map<String, VitalDetailsDTO> tmpMap = new HashMap<>();
         List<VitalDetailsDTO> listVitalsDTO = new ArrayList<>();
         List<BenPhysicalVitalDetail> listBenPhysicalVitalDetails = benPhysicalVitalRepo.getBenPhysicalVitalDetailByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
+//        System.out.println("List listBenPhysicalVitalDetails received "+listBenPhysicalVitalDetails.size());
         List<BenAnthropometryDetail> listBenAnthropometryDetails = benAnthropometryRepo.getBenAnthropometryDetailByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
-        if(listBenPhysicalVitalDetails !=null && listBenAnthropometryDetails !=null){
-//            for (int i = 0; i < ; i++) {
-//
-//            }
+//        System.out.println("List listBenAnthropometryDetails received "+listBenAnthropometryDetails.size());
+
+        if(listBenPhysicalVitalDetails !=null){
+            for (int i = 0; i < listBenPhysicalVitalDetails.size() ; i++) {
+                BenPhysicalVitalDetail benPhysicalVitalDetail = listBenPhysicalVitalDetails.get(i);
+//                System.out.println("VisitID "+benPhysicalVitalDetail.getBenVisitID());
+//                System.out.println("VisitCode "+benPhysicalVitalDetail.getVisitCode());
+                BeneficiaryFlowStatus beneficiaryFlowStatus = beneficiaryFlowStatusRepo.getBenFlowByVisitIDAndVisitCode(benPhysicalVitalDetail.getBenVisitID(), benPhysicalVitalDetail.getVisitCode());
+                List<BenAnthropometryDetail> listBenAnthropometryDetail = benAnthropometryRepo.getBenAnthropometryDetailByVisitCodeAndVisitID(benPhysicalVitalDetail.getBenVisitID(), benPhysicalVitalDetail.getVisitCode());
+                VitalDetailsDTO vitalDetails = new VitalDetailsDTO();
+                vitalDetails.setBeneficiaryRegID(benPhysicalVitalDetail.getBeneficiaryRegID()+"");
+                vitalDetails.setProviderServiceMapID(benPhysicalVitalDetail.getProviderServiceMapID());
+                vitalDetails.setBenVisitID(benPhysicalVitalDetail.getBenVisitID()+"");
+                vitalDetails.setTemperature(benPhysicalVitalDetail.getTemperature()+"");
+                vitalDetails.setPulseRate(benPhysicalVitalDetail.getPulseRate()+"");
+                vitalDetails.setSPO2(benPhysicalVitalDetail.getsPO2());
+                vitalDetails.setSystolicBP_1stReading(benPhysicalVitalDetail.getSystolicBP_1stReading()+"");
+                vitalDetails.setDiastolicBP_1stReading(benPhysicalVitalDetail.getDiastolicBP_1stReading()+"");
+                vitalDetails.setRespiratoryRate(benPhysicalVitalDetail.getRespiratoryRate()+"");
+                vitalDetails.setRbsTestResult(benPhysicalVitalDetail.getRbsTestResult());
+                vitalDetails.setCreatedBy(benPhysicalVitalDetail.getCreatedBy());
+                vitalDetails.setModifiedBy(benPhysicalVitalDetail.getModifiedBy());
+                vitalDetails.setVanID(benPhysicalVitalDetail.getVanID());
+                vitalDetails.setParkingPlaceID(benPhysicalVitalDetail.getParkingPlaceID());
+
+                if (listBenAnthropometryDetail!=null && listBenAnthropometryDetail.size()>0){
+                    BenAnthropometryDetail benAnthropometryDetail = listBenAnthropometryDetail.get(0);
+                    vitalDetails.setWeight_Kg(benAnthropometryDetail.getWeight_Kg()+"");
+                    vitalDetails.setHeight_cm(benAnthropometryDetail.getHeight_cm()+"");
+                    vitalDetails.setWaistCircumference_cm(benAnthropometryDetail.getWaistCircumference_cm()+"");
+                    vitalDetails.setBMI(benAnthropometryDetail.getbMI()+"");
+
+                }
+                if (beneficiaryFlowStatus != null){
+                    vitalDetails.setBeneficiaryID(beneficiaryFlowStatus.getBeneficiaryID());
+                    vitalDetails.setBenFlowID(beneficiaryFlowStatus.getBenFlowID());
+                }
+
+                tmpMap.put(benPhysicalVitalDetail.getBenVisitID()+"_"+benPhysicalVitalDetail.getVisitCode(), vitalDetails);
+
+                listVitalsDTO.add(vitalDetails);
+            }
+        }
+
+        if(listBenPhysicalVitalDetails !=null){
+            for (int i = 0; i < listBenAnthropometryDetails.size() ; i++) {
+                BenAnthropometryDetail benAnthropometryDetail = listBenAnthropometryDetails.get(i);
+                VitalDetailsDTO tmpVitalDetailsDTO = tmpMap.get(benAnthropometryDetail.getBenVisitID()+"_"+benAnthropometryDetail.getVisitCode());
+                if(tmpVitalDetailsDTO == null){
+                    BeneficiaryFlowStatus beneficiaryFlowStatus = beneficiaryFlowStatusRepo.getBenFlowByVisitIDAndVisitCode(benAnthropometryDetail.getBenVisitID(), benAnthropometryDetail.getVisitCode());
+                    List<BenPhysicalVitalDetail> listBenPhysicalVitalDetail = benPhysicalVitalRepo.getBenPhysicalVitalDetailByVisitCodeAndVisitID(benAnthropometryDetail.getBenVisitID(), benAnthropometryDetail.getVisitCode());
+                    VitalDetailsDTO vitalDetails = new VitalDetailsDTO();
+                    vitalDetails.setBeneficiaryRegID(benAnthropometryDetail.getBeneficiaryRegID()+"");
+                    vitalDetails.setProviderServiceMapID(benAnthropometryDetail.getProviderServiceMapID());
+                    vitalDetails.setBenVisitID(benAnthropometryDetail.getBenVisitID()+"");
+                    vitalDetails.setWeight_Kg(benAnthropometryDetail.getWeight_Kg()+"");
+                    vitalDetails.setHeight_cm(benAnthropometryDetail.getHeight_cm()+"");
+                    vitalDetails.setWaistCircumference_cm(benAnthropometryDetail.getWaistCircumference_cm()+"");
+                    vitalDetails.setBMI(benAnthropometryDetail.getbMI()+"");
+                    vitalDetails.setCreatedBy(benAnthropometryDetail.getCreatedBy());
+                    vitalDetails.setModifiedBy(benAnthropometryDetail.getModifiedBy());
+                    vitalDetails.setVanID(benAnthropometryDetail.getVanID());
+                    vitalDetails.setParkingPlaceID(benAnthropometryDetail.getParkingPlaceID());
+
+                    if (listBenPhysicalVitalDetail!=null && listBenPhysicalVitalDetail.size() > 0){
+                        BenPhysicalVitalDetail benPhysicalVitalDetail = listBenPhysicalVitalDetail.get(0);
+                        vitalDetails.setTemperature(benPhysicalVitalDetail.getTemperature()+"");
+                        vitalDetails.setPulseRate(benPhysicalVitalDetail.getPulseRate()+"");
+                        vitalDetails.setSPO2(benPhysicalVitalDetail.getsPO2());
+                        vitalDetails.setSystolicBP_1stReading(benPhysicalVitalDetail.getSystolicBP_1stReading()+"");
+                        vitalDetails.setDiastolicBP_1stReading(benPhysicalVitalDetail.getDiastolicBP_1stReading()+"");
+                        vitalDetails.setRespiratoryRate(benPhysicalVitalDetail.getRespiratoryRate()+"");
+                        vitalDetails.setRbsTestResult(benPhysicalVitalDetail.getRbsTestResult());
+                    }
+                    if (beneficiaryFlowStatus != null){
+                        vitalDetails.setBeneficiaryID(beneficiaryFlowStatus.getBeneficiaryID());
+                        vitalDetails.setBenFlowID(beneficiaryFlowStatus.getBenFlowID());
+                    }
+
+                    listVitalsDTO.add(vitalDetails);
+                }
+            }
         }
         return listVitalsDTO;
     }

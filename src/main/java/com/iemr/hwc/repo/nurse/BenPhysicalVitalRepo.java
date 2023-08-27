@@ -99,4 +99,7 @@ public interface BenPhysicalVitalRepo extends CrudRepository<BenPhysicalVitalDet
 
 	@Query("select v from BenPhysicalVitalDetail v where (v.providerServiceMapID = :providerServiceMapId OR v.vanID = :vanID) AND v.lastModDate> :lastModDate  ORDER BY v.lastModDate DESC")
 	public List<BenPhysicalVitalDetail> getBenPhysicalVitalDetailByLocationAndLastModDate(@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID, @Param("lastModDate") Timestamp lastModDate);
+
+	@Query("select v from BenPhysicalVitalDetail v where v.benVisitID = :benVisitID AND v.visitCode> :visitCode")
+	public List<BenPhysicalVitalDetail> getBenPhysicalVitalDetailByVisitCodeAndVisitID(@Param("benVisitID") Long benVisitID, @Param("visitCode") Long visitCode);
 }
