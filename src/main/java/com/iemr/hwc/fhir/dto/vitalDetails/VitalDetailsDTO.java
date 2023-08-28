@@ -23,4 +23,6 @@ public class VitalDetailsDTO {
     private String modifiedBy;
     private Integer vanID;
     private Integer parkingPlaceID;
+    private Long benFlowID;
+    private Long beneficiaryID;
 }
