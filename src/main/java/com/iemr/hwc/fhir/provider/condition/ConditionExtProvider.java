@@ -8,7 +8,6 @@ import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
-import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
 import com.iemr.hwc.data.quickConsultation.BenChiefComplaint;
 import com.iemr.hwc.fhir.model.condition.ConditionExt;
@@ -95,9 +94,6 @@ public class ConditionExtProvider implements IResourceProvider {
                 if (beneficiaryFlowStatus != null){
                     condition.setBeneficiaryID(new StringType(beneficiaryFlowStatus.getBeneficiaryID()+""));
                     condition.setBenFlowID(new StringType(beneficiaryFlowStatus.getBenFlowID()+""));
-                }
-                else {
-                    throw new ResourceNotFoundException("No record found for given benVisitID and BenVisitCode");
                 }
 
                 Coding coding = new Coding();
