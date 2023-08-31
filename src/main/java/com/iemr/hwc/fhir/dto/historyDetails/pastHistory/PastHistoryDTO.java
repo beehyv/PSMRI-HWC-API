@@ -5,6 +5,7 @@ import java.util.List;
 
 @Data
 public class PastHistoryDTO {
+    private Long id;
     private String beneficiaryRegID;
     private Integer providerServiceMapID;
     private String benVisitID;
@@ -12,6 +13,8 @@ public class PastHistoryDTO {
     private String createdBy;
     private Integer vanID;
     private Integer parkingPlaceID;
+    private Long benFlowID;
+    private Long beneficiaryID;
     private List<PastIllnessDTO> pastIllness;
     private List<PastSurgeryDTO> pastSurgery;
 }

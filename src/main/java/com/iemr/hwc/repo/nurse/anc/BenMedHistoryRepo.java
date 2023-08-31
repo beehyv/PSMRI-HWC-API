@@ -21,7 +21,9 @@
 */
 package com.iemr.hwc.repo.nurse.anc;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -62,4 +64,6 @@ public interface BenMedHistoryRepo extends CrudRepository<BenMedHistory, Long> {
 			+ "   (illnessTypeID IN (11, 13, 15, 16, 17) OR surgeryID IN (5, 15, 16 )) AND deleted is false ")
 	public ArrayList<Long> getHRPStatus(@Param("benRegID") Long benRegID);
 
+	@Query("select v from BenMedHistory v where (v.providerServiceMapID = :providerServiceMapId OR v.vanID = :vanID) AND v.lastModDate> :lastModDate  ORDER BY v.lastModDate DESC")
+	public List<BenMedHistory> getBenMedHistoryByLocationAndLastModDate(@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID, @Param("lastModDate") Timestamp lastModDate);
 }

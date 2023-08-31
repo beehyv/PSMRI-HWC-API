@@ -451,4 +451,7 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 	// get visit by location and modify_date
 	@Query("SELECT  t from BeneficiaryFlowStatus t WHERE t.villageID = :villageID AND t.modified_date > :lastModDate ORDER BY t.visitDate DESC ")
 	public ArrayList<BeneficiaryFlowStatus> getVisitByLocationAndLastModifDate(@Param("villageID") Integer villageID, @Param("lastModDate") Timestamp lastModDate);
+
+	@Query("SELECT t FROM BeneficiaryFlowStatus t Where t.benVisitID = :benVisitID AND t.visitCode = :visitCode")
+	public BeneficiaryFlowStatus getBenFlowByVisitIDAndVisitCode(@Param("benVisitID") Long benVisitID, @Param("visitCode") Long visitCode);
 }
