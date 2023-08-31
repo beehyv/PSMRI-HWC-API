@@ -9,6 +9,8 @@ import com.google.gson.JsonParser;
 import com.iemr.hwc.data.anc.BenMedHistory;
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
 import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastHistoryDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastIllnessDTO;
+import com.iemr.hwc.fhir.dto.historyDetails.pastHistory.PastSurgeryDTO;
 import com.iemr.hwc.fhir.dto.mandatoryFieldsDTO.MandatoryFieldsDTO;
 import com.iemr.hwc.fhir.dto.vitalDetails.VitalDetailsDTO;
 import com.iemr.hwc.fhir.model.observation.ObservationExt;
@@ -16,6 +18,8 @@ import com.iemr.hwc.fhir.utils.mapper.MapperMethods;
 import com.iemr.hwc.fhir.utils.mapper.MapperUtils;
 import com.iemr.hwc.fhir.utils.validation.ObservationValidation;
 import com.iemr.hwc.repo.benFlowStatus.BeneficiaryFlowStatusRepo;
+import com.iemr.hwc.repo.nurse.anc.BenMedHistoryRepo;
+import com.iemr.hwc.service.anc.Utility;
 import com.iemr.hwc.service.common.transaction.CommonNurseServiceImpl;
 import com.iemr.hwc.service.generalOPD.GeneralOPDServiceImpl;
 import com.iemr.hwc.utils.exception.IEMRException;
@@ -26,6 +30,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class ObservationServiceImpl implements ObservationService{
@@ -45,6 +53,9 @@ public class ObservationServiceImpl implements ObservationService{
 
     @Autowired
     private CommonNurseServiceImpl commonNurseService;
+
+    @Autowired
+    private BenMedHistoryRepo benMedHistoryRepo;
 
     @Override
     public ObservationExt createObservation(HttpServletRequest theRequest, ObservationExt observationExt) throws Exception{
@@ -149,5 +160,59 @@ public class ObservationServiceImpl implements ObservationService{
         }
 
         return observationExt;
+    }
+
+    @Override
+    public List<PastHistoryDTO> getBenMedHistoryByLocationAndLastModifDate(Integer providerServiceMapId, Integer vanID, Timestamp lastModifDate){
+        List<PastHistoryDTO> pastHistoryDTOList = new ArrayList<>();
+        List<BenMedHistory> listHistory = benMedHistoryRepo.getBenMedHistoryByLocationAndLastModDate(providerServiceMapId, vanID, lastModifDate);
+        System.out.println("listHistory size "+listHistory.size());
+        if(listHistory != null && !listHistory.isEmpty()){
+            for (int i = 0; i < listHistory.size(); i++) {
+                PastHistoryDTO pastHistoryDTO = new PastHistoryDTO();
+                BenMedHistory benMedHistory = listHistory.get(i);
+                BeneficiaryFlowStatus beneficiaryFlowStatus = beneficiaryFlowStatusRepo.getBenFlowByVisitIDAndVisitCode(benMedHistory.getBenVisitID(), benMedHistory.getVisitCode());
+                if(beneficiaryFlowStatus !=null){
+                    pastHistoryDTO.setBenFlowID(beneficiaryFlowStatus.getBenFlowID());
+                    pastHistoryDTO.setBeneficiaryID(beneficiaryFlowStatus.getBeneficiaryID());
+                }
+                pastHistoryDTO.setId(benMedHistory.getBenMedHistoryID());
+                pastHistoryDTO.setVanID(benMedHistory.getVanID());
+                pastHistoryDTO.setParkingPlaceID(benMedHistory.getParkingPlaceID());
+                pastHistoryDTO.setProviderServiceMapID(benMedHistory.getProviderServiceMapID());
+                pastHistoryDTO.setCreatedBy(benMedHistory.getCreatedBy());
+                pastHistoryDTO.setBeneficiaryRegID(benMedHistory.getBeneficiaryRegID()+"");
+
+                List<PastIllnessDTO> pastIllnessDTOList = new ArrayList<>();
+                PastIllnessDTO illnessDTO = new PastIllnessDTO();
+                illnessDTO.setIllnessTypeID(benMedHistory.getIllnessTypeID()+"");
+                illnessDTO.setIllnessType(benMedHistory.getIllnessType());
+                illnessDTO.setOtherIllnessType(benMedHistory.getOtherIllnessType());
+                Map<String, Object> timePeriodIllness = Utility.convertTimeToWords(benMedHistory.getYearofIllness(), benMedHistory.getCreatedDate());
+                if(timePeriodIllness !=null){
+                    illnessDTO.setTimePeriodAgo(timePeriodIllness.get("timePeriodAgo") +"");
+                    illnessDTO.setTimePeriodUnit(timePeriodIllness.get("timePeriodUnit")+"");
+                }
+                pastIllnessDTOList.add(illnessDTO);
+                pastHistoryDTO.setPastIllness(pastIllnessDTOList);
+
+                List<PastSurgeryDTO> pastSurgeryDTOList = new ArrayList<>();
+                PastSurgeryDTO surgeryDTO = new PastSurgeryDTO();
+                surgeryDTO.setSurgeryID(benMedHistory.getSurgeryID()+"");
+                surgeryDTO.setSurgeryType(benMedHistory.getSurgeryType());
+                surgeryDTO.setOtherSurgeryType(benMedHistory.getOtherSurgeryType());
+                Map<String, Object> timePeriodSurgery = Utility.convertTimeToWords(benMedHistory.getYearofSurgery(), benMedHistory.getCreatedDate());
+                if(timePeriodSurgery!=null){
+                    surgeryDTO.setTimePeriodAgo(timePeriodSurgery.get("timePeriodAgo")+"");
+                    surgeryDTO.setTimePeriodUnit(timePeriodSurgery.get("timePeriodUnit")+"");
+                }
+                pastSurgeryDTOList.add(surgeryDTO);
+                pastHistoryDTO.setPastSurgery(pastSurgeryDTOList);
+
+                pastHistoryDTOList.add(pastHistoryDTO);
+            }
+        }
+
+        return pastHistoryDTOList;
     }
 }
