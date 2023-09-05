@@ -23,6 +23,7 @@ package com.iemr.hwc.repo.location;
 
 import java.util.ArrayList;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -30,6 +31,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 
 import com.iemr.hwc.data.location.DistrictBranchMapping;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RestResource(exported = false)
@@ -37,6 +39,18 @@ public interface DistrictBranchMasterRepo extends CrudRepository<DistrictBranchM
 
 	@Query(" SELECT districtBranchID, villageName FROM DistrictBranchMapping WHERE blockID = :blockID  AND deleted != 1 ")
 	public ArrayList<Object[]> findByBlockID(@Param("blockID") Integer blockID);
-	
+
+	@Query(" SELECT d FROM DistrictBranchMapping d WHERE d.GovVillageID = :GovVillageID  AND d.deleted = false ")
+	public DistrictBranchMapping findAllByGovVillageID(@Param("GovVillageID") Integer blockID);
+
+	@Transactional
+	@Modifying
+	@Query("update DistrictBranchMapping u set u.latitude = :latitude, u.longitude = :longitude, u.active = :active where u.GovVillageID = :GovVillageID")
+	int updateGeolocationByBlockID(@Param("latitude") Double latitude, @Param("longitude") Double longitude, @Param("active") Boolean active, @Param("GovVillageID") Integer GovVillageID);
+
+	@Transactional
+	@Modifying
+	@Query("update DistrictBranchMapping u set u.active = :active where u.GovVillageID = :GovVillageID")
+	int updateActiceStatus(@Param("active") boolean active, @Param("GovVillageID") Integer GovVillageID);
 
 }

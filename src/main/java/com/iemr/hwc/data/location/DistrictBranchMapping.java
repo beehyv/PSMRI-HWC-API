@@ -56,6 +56,9 @@ public class DistrictBranchMapping {
 	@Column(name = "VillageName")
 	@Expose
 	private String villageName;
+	@Column(name = "GovVillageID")
+	@Expose
+	private Integer GovVillageID;
 	@Column(name = "Habitat")
 	@Expose
 	private String habitat;
@@ -74,6 +77,16 @@ public class DistrictBranchMapping {
 	private String modifiedBy;
 	@Column(name = "LastModDate", insertable = false, updatable = false)
 	private Timestamp lastModDate;
+
+	@Column(name = "latitude")
+	@Expose
+	private Double latitude;
+	@Column(name = "longitude")
+	@Expose
+	private Double longitude;
+	@Column(name = "active")
+	@Expose
+	private Boolean active;
 
 	@Transient
 	private OutputMapper outputMapper = new OutputMapper();
@@ -197,5 +210,37 @@ public class DistrictBranchMapping {
 	@Override
 	public String toString() {
 		return outputMapper.gson().toJson(this);
+	}
+
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	public Integer getGovVillageID() {
+		return GovVillageID;
+	}
+
+	public void setGovVillageID(Integer govVillageID) {
+		GovVillageID = govVillageID;
 	}
 }

@@ -21,6 +21,9 @@
  */
 package com.iemr.hwc.controller.wo;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.iemr.hwc.controller.common.master.CommonMasterController;
 import com.iemr.hwc.service.location.LocationServiceImpl;
 import com.iemr.hwc.utils.response.OutputResponse;
@@ -151,6 +154,32 @@ public class LocationControllerWo {
         } catch (Exception e) {
             logger.error(e.getMessage());
             response.setError(5000, "Error while getting location data");
+        }
+        return response.toString();
+    }
+
+    @CrossOrigin
+    @ApiOperation(value = "Updating village coordinates collected by nurse", consumes = "application/json", produces = "application/json")
+    @RequestMapping(value = { "/update/geolocation/wo" }, method = { RequestMethod.POST })
+    public String updateGeolocationVillage(@RequestBody String requestObj) {
+        OutputResponse response = new OutputResponse();
+        try {
+            logger.info("Request object for Geolocation update :" + requestObj);
+
+            JsonObject jsnOBJ = new JsonObject();
+            JsonParser jsnParser = new JsonParser();
+            JsonElement jsnElmnt = jsnParser.parse(requestObj);
+            jsnOBJ = jsnElmnt.getAsJsonObject();
+
+            if (jsnOBJ != null) {
+                int genOPDRes = locationServiceImpl.updateGeolocationByGovVillageID(jsnOBJ.get("latitude").getAsDouble(), jsnOBJ.get("longitude").getAsDouble(), jsnOBJ.get("GovVillageID").getAsInt());
+                response.setResponse(genOPDRes+"");
+            } else {
+                response.setResponse("Invalid request");
+            }
+        } catch (Exception e) {
+            logger.error("Error in updating geolocation :" + e);
+            response.setError(5000, "Unable to update data");
         }
         return response.toString();
     }

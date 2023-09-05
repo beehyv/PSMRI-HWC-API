@@ -352,29 +352,17 @@ public class LocationServiceImpl implements LocationService {
 		return returnObj;
 
 	}
-	// private Map<String, Object> getDefaultLocDetails(ArrayList<Object[]> objList)
-	// {
-	// Map<String, Object> returnObj = new HashMap<>();
-	// Map<String, Object> distMap = new HashMap<>();
-	// ArrayList<Map<String, Object>> distLit = new ArrayList<>();
-	// if (objList != null && objList.size() > 0) {
-	// returnObj.put("stateID", objList.get(0)[6]);
-	// returnObj.put("stateName", objList.get(0)[7]);
-	// returnObj.put("zoneID", objList.get(0)[4]);
-	// returnObj.put("zoneName", objList.get(0)[5]);
-	// returnObj.put("parkingPlaceID", objList.get(0)[0]);
-	// returnObj.put("parkingPlaceName", objList.get(0)[1]);
-	// for (Object[] objArr : objList) {
-	// distMap = new HashMap<>();
-	// distMap.put("districtID", objArr[2]);
-	// distMap.put("districtName", objArr[3]);
-	//
-	// distLit.add(distMap);
-	// }
-	//
-	// returnObj.put("districtList", distLit);
-	// }
-	// return returnObj;
-	//
-	// }
+
+	public int updateGeolocationByGovVillageID(Double latitude, Double longitude, Integer GovVillageID) {
+		int i = 0;
+		try {
+			DistrictBranchMapping districtBranchMapping = districtBranchMasterRepo.findAllByGovVillageID(GovVillageID);
+			if(districtBranchMapping !=null && districtBranchMapping.getActive()==false){
+				i = districtBranchMasterRepo.updateGeolocationByBlockID(latitude, longitude, true, GovVillageID);
+			}
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+		return i;
+	}
 }
