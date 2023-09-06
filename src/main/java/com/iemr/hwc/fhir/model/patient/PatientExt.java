@@ -102,6 +102,16 @@ public class PatientExt extends Patient {
     @Child(name = "govtHealthProgramId")
     private StringType govtHealthProgramId;
 
+    @Description(shortDefinition = "Contains benFlowID ")
+    @Extension(url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.benFlowID", isModifier = false, definedLocally = true)
+    @Child(name = "benFlowID")
+    private StringType benFlowID;
+
+    @Description(shortDefinition = "Contains beneficiaryRegID ")
+    @Extension(url = "http://hl7.org/fhir/StructureDefinition/Patient#Patient.beneficiaryRegID", isModifier = false, definedLocally = true)
+    @Child(name = "beneficiaryRegID")
+    private StringType beneficiaryRegID;
+
 
     public StringType getFatherName() {
         if (fatherName == null) {
@@ -301,12 +311,36 @@ public class PatientExt extends Patient {
         govtHealthProgramId =  govtHealthProgram_Id;
     }
 
+    public StringType getBenFlowID() {
+        if (benFlowID == null) {
+            benFlowID = new StringType();
+        }
+        return benFlowID;
+    }
+
+    public void setBenFlowID(StringType benFlow_ID) {
+        benFlowID =  benFlow_ID;
+    }
+
+    public StringType getBeneficiaryRegID() {
+        if (beneficiaryRegID == null) {
+            beneficiaryRegID = new StringType();
+        }
+        return beneficiaryRegID;
+    }
+
+    public void setBeneficiaryRegID(StringType beneficiary_RegID) {
+        beneficiaryRegID =  beneficiary_RegID;
+    }
+
+
     @Override
     public boolean isEmpty() {
         return super.isEmpty() && ElementUtil.isEmpty(fatherName , spouseName , ageAtMarriage , abhaGenerationMode ,
                 providerServiceMapId , vanID , parkingPlaceID , createdBy ,
                 state , district , block , districtBranch , religion , community ,
-                govtIdentityType , govtIdentityNo , govtHealthProgramType , govtHealthProgramId);
+                govtIdentityType , govtIdentityNo , govtHealthProgramType ,
+                govtHealthProgramId, benFlowID ,beneficiaryRegID);
     }
 
 }

@@ -46,7 +46,7 @@ public class PatientExtProvider implements IResourceProvider {
 
 
     @Create()
-    public MethodOutcome createPatient(HttpServletRequest theRequest, @ResourceParam PatientExt patientExt) {
+    public MethodOutcome createPatient(HttpServletRequest theRequest, @ResourceParam PatientExt patientExt) throws Exception{
 
         MethodOutcome method = new MethodOutcome();
         method.setCreated(true);
@@ -85,6 +85,7 @@ public class PatientExtProvider implements IResourceProvider {
 
                 patient.setVanID(new StringType(benef.getBeneficiaryDetails().getVanID()+""));
                 patient.setParkingPlaceID(new StringType(benef.getBeneficiaryDetails().getParkingPlaceID()+""));
+                patient.setBeneficiaryRegID(new StringType(benef.getBeneficiaryDetails().getBeneficiaryRegID()+""));
                 patient.setCreatedBy(new StringType(benef.getCreatedBy()));
                 Coding codingState = new Coding();
                 codingState.setCode(benef.getCurrentAddress().getStateId()+"");
