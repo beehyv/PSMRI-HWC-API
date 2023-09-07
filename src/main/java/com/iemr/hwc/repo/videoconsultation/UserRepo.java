@@ -29,6 +29,8 @@ import org.springframework.stereotype.Repository;
 
 import com.iemr.hwc.data.videoconsultation.M_UserTemp;
 
+import java.util.ArrayList;
+
 @Repository
 @RestResource(exported = false)
 public interface UserRepo extends CrudRepository<M_UserTemp, Long> {
@@ -36,4 +38,6 @@ public interface UserRepo extends CrudRepository<M_UserTemp, Long> {
 	@Query(value="select u from M_UserTemp u left join  u.userSwymed user where u.userID=:userID and user.userID=:userID")
 	M_UserTemp findOneMap(@Param("userID")Long userid);
 
+	@Query(" SELECT u FROM M_UserTemp u WHERE u.UserName = :UserName AND u.Deleted = false ")
+	public M_UserTemp getUserByUsername(@Param("UserName") String username);
 }
