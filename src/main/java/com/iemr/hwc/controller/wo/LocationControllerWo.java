@@ -159,8 +159,8 @@ public class LocationControllerWo {
     }
 
     @CrossOrigin
-    @ApiOperation(value = "Updating village coordinates collected by nurse", consumes = "application/json", produces = "application/json")
-    @RequestMapping(value = { "/update/geolocation/wo" }, method = { RequestMethod.POST })
+    @ApiOperation(value = "Update health and wellness center coordinates", consumes = "application/json", produces = "application/json")
+    @RequestMapping(value = { "/update/villageCoordinates/wo" }, method = { RequestMethod.POST })
     public String updateGeolocationVillage(@RequestBody String requestObj) {
         OutputResponse response = new OutputResponse();
         try {
@@ -182,7 +182,7 @@ public class LocationControllerWo {
                     response.setResponse(responseUpdate+"");
                 }
                 else if(responseUpdate==101){
-                    response.setError(5000, "Unable to update data");
+                    response.setError(5000, "Unable to update the lat long for an active record");
                 }
             } else {
                 response.setError(400, "Invalid request");
