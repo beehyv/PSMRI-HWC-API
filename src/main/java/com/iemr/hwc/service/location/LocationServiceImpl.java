@@ -353,16 +353,16 @@ public class LocationServiceImpl implements LocationService {
 
 	}
 
-	public int updateGeolocationByGovVillageID(Double latitude, Double longitude, Integer GovVillageID) {
+	public int updateGeolocationByDistrictBranchID(Double latitude, Double longitude, Integer districtBranchID) {
 		int i = 0;
-		try {
-			DistrictBranchMapping districtBranchMapping = districtBranchMasterRepo.findAllByGovVillageID(GovVillageID);
-			if(districtBranchMapping !=null && districtBranchMapping.getActive()==false){
-				i = districtBranchMasterRepo.updateGeolocationByBlockID(latitude, longitude, true, GovVillageID);
-			}
-		} catch (Exception e) {
-			// e.printStackTrace();
+		DistrictBranchMapping districtBranchMapping = districtBranchMasterRepo.findAllByDistrictBranchID(districtBranchID);
+		if(districtBranchMapping !=null && districtBranchMapping.getActive()==false){
+			i = districtBranchMasterRepo.updateGeolocationByDistrictBranchID(latitude, longitude, true, districtBranchID);
 		}
+		else{
+			i =101;
+		}
+
 		return i;
 	}
 }

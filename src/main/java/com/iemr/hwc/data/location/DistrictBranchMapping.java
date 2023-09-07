@@ -56,9 +56,6 @@ public class DistrictBranchMapping {
 	@Column(name = "VillageName")
 	@Expose
 	private String villageName;
-	@Column(name = "GovVillageID")
-	@Expose
-	private Integer GovVillageID;
 	@Column(name = "Habitat")
 	@Expose
 	private String habitat;
@@ -234,13 +231,5 @@ public class DistrictBranchMapping {
 
 	public void setActive(Boolean active) {
 		this.active = active;
-	}
-
-	public Integer getGovVillageID() {
-		return GovVillageID;
-	}
-
-	public void setGovVillageID(Integer govVillageID) {
-		GovVillageID = govVillageID;
 	}
 }

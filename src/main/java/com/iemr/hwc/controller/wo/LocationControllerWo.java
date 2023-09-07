@@ -171,11 +171,21 @@ public class LocationControllerWo {
             JsonElement jsnElmnt = jsnParser.parse(requestObj);
             jsnOBJ = jsnElmnt.getAsJsonObject();
 
-            if (jsnOBJ != null) {
-                int genOPDRes = locationServiceImpl.updateGeolocationByGovVillageID(jsnOBJ.get("latitude").getAsDouble(), jsnOBJ.get("longitude").getAsDouble(), jsnOBJ.get("GovVillageID").getAsInt());
-                response.setResponse(genOPDRes+"");
+            JsonElement jElmtLatitude = jsnOBJ.get("latitude");
+            JsonElement jElmtLongitude = jsnOBJ.get("longitude");
+            JsonElement jElmtDistrictBranchID = jsnOBJ.get("districtBranchID");
+
+
+            if (jsnOBJ != null && jElmtLatitude!=null && jElmtLongitude!=null && jElmtDistrictBranchID!=null) {
+                int responseUpdate = locationServiceImpl.updateGeolocationByDistrictBranchID(jElmtLatitude.getAsDouble(), jElmtLongitude.getAsDouble(), jElmtDistrictBranchID.getAsInt());
+                if(responseUpdate==1){
+                    response.setResponse(responseUpdate+"");
+                }
+                else if(responseUpdate==101){
+                    response.setError(5000, "Unable to update data");
+                }
             } else {
-                response.setResponse("Invalid request");
+                response.setError(400, "Invalid request");
             }
         } catch (Exception e) {
             logger.error("Error in updating geolocation :" + e);

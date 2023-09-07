@@ -40,17 +40,17 @@ public interface DistrictBranchMasterRepo extends CrudRepository<DistrictBranchM
 	@Query(" SELECT districtBranchID, villageName FROM DistrictBranchMapping WHERE blockID = :blockID  AND deleted != 1 ")
 	public ArrayList<Object[]> findByBlockID(@Param("blockID") Integer blockID);
 
-	@Query(" SELECT d FROM DistrictBranchMapping d WHERE d.GovVillageID = :GovVillageID  AND d.deleted = false ")
-	public DistrictBranchMapping findAllByGovVillageID(@Param("GovVillageID") Integer blockID);
+	@Query(" SELECT d FROM DistrictBranchMapping d WHERE d.districtBranchID = :districtBranchID  AND d.deleted = false ")
+	public DistrictBranchMapping findAllByDistrictBranchID(@Param("districtBranchID") Integer districtBranchID);
 
 	@Transactional
 	@Modifying
-	@Query("update DistrictBranchMapping u set u.latitude = :latitude, u.longitude = :longitude, u.active = :active where u.GovVillageID = :GovVillageID")
-	int updateGeolocationByBlockID(@Param("latitude") Double latitude, @Param("longitude") Double longitude, @Param("active") Boolean active, @Param("GovVillageID") Integer GovVillageID);
+	@Query("update DistrictBranchMapping u set u.latitude = :latitude, u.longitude = :longitude, u.active = :active where u.districtBranchID = :districtBranchID")
+	int updateGeolocationByDistrictBranchID(@Param("latitude") Double latitude, @Param("longitude") Double longitude, @Param("active") Boolean active, @Param("districtBranchID") Integer districtBranchID);
 
 	@Transactional
 	@Modifying
-	@Query("update DistrictBranchMapping u set u.active = :active where u.GovVillageID = :GovVillageID")
-	int updateActiceStatus(@Param("active") boolean active, @Param("GovVillageID") Integer GovVillageID);
+	@Query("update DistrictBranchMapping u set u.active = :active where u.districtBranchID = :districtBranchID")
+	int updateActiceStatus(@Param("active") boolean active, @Param("districtBranchID") Integer districtBranchID);
 
 }
