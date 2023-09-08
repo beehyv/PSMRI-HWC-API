@@ -74,12 +74,6 @@ public class LocationServiceImpl implements LocationService {
 	@Autowired
 	private LocationMasterRepo locationMasterRepo;
 
-	@Autowired
-	private UserRepo userRepo;
-
-	@Autowired
-	private UserBiometricsRepo userBiometricsRepo;
-
 	private StateMasterRepo stateMasterRepo;
 	private ZoneMasterRepo zoneMasterRepo;
 	private DistrictMasterRepo districtMasterRepo;
@@ -375,44 +369,5 @@ public class LocationServiceImpl implements LocationService {
 		}
 
 		return i;
-	}
-
-	public String saveFingerprints(FingerPrintDTO comingRequest) {
-		String response = "";
-		M_UserTemp user = userRepo.getUserByUsername(comingRequest.getUserName());
-		if(user !=null){
-			UserBiometricsMapping userBiometricsMapping = new UserBiometricsMapping();
-			userBiometricsMapping.setUserID(user.getUserID());
-			userBiometricsMapping.setFirstName(user.getFirstName());
-			userBiometricsMapping.setLastName(user.getLastName());
-			userBiometricsMapping.setUserName(user.getUserName());
-			userBiometricsMapping.setCreatedBy("Admin");
-
-			if(comingRequest.getFingerType().equals("right_thumb")){
-				userBiometricsMapping.setRightThumb(comingRequest.getFpVal());
-			}
-			else if(comingRequest.getFingerType().equals("right_index_finger")){
-				userBiometricsMapping.setRightIndexFinger(comingRequest.getFpVal());
-			}
-			else if(comingRequest.getFingerType().equals("left_thumb")){
-				userBiometricsMapping.setLeftThumb(comingRequest.getFpVal());
-			}
-			else if(comingRequest.getFingerType().equals("left_index_finger")){
-				userBiometricsMapping.setLeftIndexFinger(comingRequest.getFpVal());
-			}
-
-			UserBiometricsMapping resp = userBiometricsRepo.save(userBiometricsMapping);
-			if(resp !=null){
-				response = "ok";
-			}
-			else{
-				response = "ko";
-			}
-		}
-		else{
-			response = "wrong username";
-		}
-
-		return response;
 	}
 }
