@@ -6,6 +6,8 @@ import lombok.Data;
 public class FingerPrintDTO {
     private Integer id;
     private String userName;
-    private String fpVal;
-    private String fingerType;
+    private String rightThumb;
+    private String rightIndexFinger;
+    private String leftThumb;
+    private String leftIndexFinger;
 }
