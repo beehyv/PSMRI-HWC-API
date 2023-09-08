@@ -96,11 +96,19 @@ public class DistrictBranchMapping {
 		this.villageName = VillageName;
 	}
 
+	public DistrictBranchMapping(Integer DistrictBranchID, String VillageName, Double latitude, Double longitude, Boolean active) {
+		this.districtBranchID = DistrictBranchID;
+		this.villageName = VillageName;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.active = active;
+	}
+
 	public static String getVillageList(ArrayList<Object[]> resList) {
 		DistrictBranchMapping villOBJ = null;
 		ArrayList<DistrictBranchMapping> villList = new ArrayList<>();
 		for (Object[] obj : resList) {
-			villOBJ = new DistrictBranchMapping((Integer) obj[0], (String) obj[1]);
+			villOBJ = new DistrictBranchMapping((Integer) obj[0], (String) obj[1], (Double) obj[2], (Double) obj[3], (Boolean) obj[4]);
 			villList.add(villOBJ);
 		}
 		return new Gson().toJson(villList);
