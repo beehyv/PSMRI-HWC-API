@@ -35,6 +35,7 @@ import javax.persistence.Transient;
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.iemr.hwc.utils.mapper.OutputMapper;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 @Entity
 @Table(name = "m_DistrictBranchMapping")
@@ -102,13 +103,15 @@ public class DistrictBranchMapping {
 	}
 
 	
-	public DistrictBranchMapping(Integer districtBranchID,String villageName, Integer govtLGDSubDistrictID, Integer govtLGDVillageID
+	public DistrictBranchMapping(Integer districtBranchID,String villageName, Integer govtLGDSubDistrictID, Integer govtLGDVillageID, Double latitude, Double longitude, Boolean active
 			) {
 		this.districtBranchID = districtBranchID;
 		this.villageName = villageName;
 		this.govtLGDSubDistrictID = govtLGDSubDistrictID;
 		this.govtLGDVillageID = govtLGDVillageID;
-		
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.active = active;
 	}
 	
 	
@@ -121,7 +124,7 @@ public class DistrictBranchMapping {
 		DistrictBranchMapping villOBJ = null;
 		ArrayList<DistrictBranchMapping> villList = new ArrayList<>();
 		for (Object[] obj : resList) {
-			villOBJ = new DistrictBranchMapping((Integer) obj[0], (String) obj[1],(Integer) obj[2],(Integer) obj[3]);
+			villOBJ = new DistrictBranchMapping((Integer) obj[0], (String) obj[1],(Integer) obj[2],(Integer) obj[3], (Double) obj[4], (Double) obj[5], (Boolean) obj[6]);
 			villList.add(villOBJ);
 		}
 		return new Gson().toJson(villList);

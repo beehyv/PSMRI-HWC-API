@@ -38,7 +38,7 @@ import javax.transaction.Transactional;
 @RestResource(exported = false)
 public interface DistrictBranchMasterRepo extends CrudRepository<DistrictBranchMapping, Integer> {
 
-	@Query(" SELECT districtBranchID, villageName,govtLGDSubDistrictID,govtLGDVillageID FROM DistrictBranchMapping WHERE blockID = :blockID  AND deleted != 1 ")
+	@Query(" SELECT districtBranchID, villageName,govtLGDSubDistrictID,govtLGDVillageID, latitude, longitude, active FROM DistrictBranchMapping WHERE blockID = :blockID  AND deleted != 1 ")
 	public ArrayList<Object[]> findByBlockID(@Param("blockID") Integer blockID);
 
 	@Query(" SELECT d FROM DistrictBranchMapping d WHERE d.districtBranchID = :districtBranchID  AND d.deleted = false ")
