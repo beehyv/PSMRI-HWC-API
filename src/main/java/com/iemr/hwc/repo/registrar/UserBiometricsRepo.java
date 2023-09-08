@@ -13,6 +13,6 @@ import org.springframework.stereotype.Repository;
 @RestResource(exported = false)
 public interface UserBiometricsRepo extends CrudRepository<UserBiometricsMapping, Long> {
     @Query(" SELECT u FROM UserBiometricsMapping u WHERE u.userID = :userID AND u.deleted = false ")
-    public UserBiometricsMapping getFingerprintsByUserID(@Param("userID") Integer userID);
+    public UserBiometricsMapping getFingerprintsByUserID(@Param("userID") Long userID);
 
 }

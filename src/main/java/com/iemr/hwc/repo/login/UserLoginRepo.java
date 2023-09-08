@@ -22,7 +22,6 @@
 package com.iemr.hwc.repo.login;
 
 import com.iemr.hwc.data.login.Users;
-import com.iemr.hwc.data.videoconsultation.M_UserTemp;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -31,8 +30,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RestResource(exported = false)
-public interface UserRepo extends CrudRepository<Users, Long> {
-	@Query(" SELECT u FROM M_UserTemp u WHERE u.UserName = :UserName AND u.Deleted = false ")
+public interface UserLoginRepo extends CrudRepository<Users, Long> {
+	@Query(" SELECT u FROM Users u WHERE u.userName = :UserName AND u.deleted = false ")
 	public Users getUserByUsername(@Param("UserName") String username);
 
 }

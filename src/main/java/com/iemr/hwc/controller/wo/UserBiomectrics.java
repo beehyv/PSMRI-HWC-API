@@ -52,7 +52,7 @@ public class UserBiomectrics {
 
     @ApiOperation(value = "Get fingerprint by username", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/get/fingerprint/{userID}/wo", method = RequestMethod.GET)
-    public String getVillageByDistrictID(@PathVariable("userID") Integer userID) {
+    public String getFingerprintsByUsername(@PathVariable("userID") Long userID) {
         logger.info("Get fingerprint by username ..." + userID);
         OutputResponse response = new OutputResponse();
         UserBiometricsMapping user = registrarService.getFingerprintsByUserID(userID);

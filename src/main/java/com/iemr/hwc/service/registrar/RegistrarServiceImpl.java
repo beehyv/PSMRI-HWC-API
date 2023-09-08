@@ -28,11 +28,9 @@ import java.util.*;
 
 import javax.ws.rs.core.MediaType;
 
-import com.iemr.hwc.data.location.DistrictBranchMapping;
 import com.iemr.hwc.data.login.Users;
 import com.iemr.hwc.data.registrar.*;
-import com.iemr.hwc.data.videoconsultation.M_UserTemp;
-import com.iemr.hwc.repo.login.UserRepo;
+import com.iemr.hwc.repo.login.UserLoginRepo;
 import com.iemr.hwc.repo.registrar.*;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -95,7 +93,7 @@ public class RegistrarServiceImpl implements RegistrarService {
 	private CommonBenStatusFlowServiceImpl commonBenStatusFlowServiceImpl;
 
 	@Autowired
-	private UserRepo userRepo;
+	private UserLoginRepo userRepo;
 
 	@Autowired
 	private UserBiometricsRepo userBiometricsRepo;
@@ -874,7 +872,7 @@ public class RegistrarServiceImpl implements RegistrarService {
 		return response;
 	}
 
-	public UserBiometricsMapping getFingerprintsByUserID(Integer userID) {
+	public UserBiometricsMapping getFingerprintsByUserID(Long userID) {
 		UserBiometricsMapping user = userBiometricsRepo.getFingerprintsByUserID(userID);
 		return user;
 	}
