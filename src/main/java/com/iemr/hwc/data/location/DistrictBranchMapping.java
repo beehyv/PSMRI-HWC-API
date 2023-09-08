@@ -103,8 +103,16 @@ public class DistrictBranchMapping {
 	}
 
 	
-	public DistrictBranchMapping(Integer districtBranchID,String villageName, Integer govtLGDSubDistrictID, Integer govtLGDVillageID, Double latitude, Double longitude, Boolean active
+	public DistrictBranchMapping(Integer districtBranchID,String villageName, Integer govtLGDSubDistrictID, Integer govtLGDVillageID
 			) {
+		this.districtBranchID = districtBranchID;
+		this.villageName = villageName;
+		this.govtLGDSubDistrictID = govtLGDSubDistrictID;
+		this.govtLGDVillageID = govtLGDVillageID;
+	}
+
+	public DistrictBranchMapping(Integer districtBranchID,String villageName, Integer govtLGDSubDistrictID, Integer govtLGDVillageID, Double latitude, Double longitude, Boolean active
+	) {
 		this.districtBranchID = districtBranchID;
 		this.villageName = villageName;
 		this.govtLGDSubDistrictID = govtLGDSubDistrictID;
