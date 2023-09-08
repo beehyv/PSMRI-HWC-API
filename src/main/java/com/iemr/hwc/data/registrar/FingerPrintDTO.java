@@ -8,5 +8,8 @@ import java.util.List;
 public class FingerPrintDTO {
     private Integer id;
     private String userName;
-    private List<FingerPrint> fp;
+    private String rightThumb;
+    private String rightIndexFinger;
+    private String leftThumb;
+    private String leftIndexFinger;
 }

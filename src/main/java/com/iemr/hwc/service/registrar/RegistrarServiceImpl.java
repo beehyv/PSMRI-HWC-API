@@ -28,10 +28,12 @@ import java.util.*;
 
 import javax.ws.rs.core.MediaType;
 
+import com.iemr.hwc.data.location.DistrictBranchMapping;
+import com.iemr.hwc.data.login.Users;
 import com.iemr.hwc.data.registrar.*;
 import com.iemr.hwc.data.videoconsultation.M_UserTemp;
+import com.iemr.hwc.repo.login.UserRepo;
 import com.iemr.hwc.repo.registrar.*;
-import com.iemr.hwc.repo.videoconsultation.UserRepo;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -844,7 +846,7 @@ public class RegistrarServiceImpl implements RegistrarService {
 
 	public String saveFingerprints(FingerPrintDTO comingRequest) {
 		String response = "";
-		M_UserTemp user = userRepo.getUserByUsername(comingRequest.getUserName());
+		Users user = userRepo.getUserByUsername(comingRequest.getUserName());
 		if(user !=null){
 			UserBiometricsMapping userBiometricsMapping = new UserBiometricsMapping();
 			userBiometricsMapping.setUserID(user.getUserID());
@@ -852,27 +854,10 @@ public class RegistrarServiceImpl implements RegistrarService {
 			userBiometricsMapping.setLastName(user.getLastName());
 			userBiometricsMapping.setUserName(user.getUserName());
 			userBiometricsMapping.setCreatedBy(user.getUserName());
-
-			for(FingerPrint finger: comingRequest.getFp()){
-				if(finger.getFingerType()!=null && !finger.getFingerType().isEmpty() && finger.getFpVal()!=null && !finger.getFpVal().isEmpty()){
-					if(finger.getFingerType().equals("right_thumb")){
-						userBiometricsMapping.setRightThumb(finger.getFpVal());
-					}
-					else if(finger.getFingerType().equals("right_index_finger")){
-						userBiometricsMapping.setRightIndexFinger(finger.getFpVal());
-					}
-					else if(finger.getFingerType().equals("left_thumb")){
-						userBiometricsMapping.setLeftThumb(finger.getFpVal());
-					}
-					else if(finger.getFingerType().equals("left_index_finger")){
-						userBiometricsMapping.setLeftIndexFinger(finger.getFpVal());
-					}
-				}
-				else{
-					response = "bad_request";
-					break;
-				}
-			}
+			userBiometricsMapping.setRightThumb(comingRequest.getRightThumb());
+			userBiometricsMapping.setRightIndexFinger(comingRequest.getRightIndexFinger());
+			userBiometricsMapping.setLeftThumb(comingRequest.getLeftThumb());
+			userBiometricsMapping.setLeftIndexFinger(comingRequest.getLeftIndexFinger());
 
 			UserBiometricsMapping resp = userBiometricsRepo.save(userBiometricsMapping);
 			if(resp !=null){
@@ -887,5 +872,10 @@ public class RegistrarServiceImpl implements RegistrarService {
 		}
 
 		return response;
+	}
+
+	public UserBiometricsMapping getFingerprintsByUserID(Integer userID) {
+		UserBiometricsMapping user = userBiometricsRepo.getFingerprintsByUserID(userID);
+		return user;
 	}
 }

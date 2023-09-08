@@ -19,21 +19,20 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see https://www.gnu.org/licenses/.
 */
-package com.iemr.hwc.repo.videoconsultation;
+package com.iemr.hwc.repo.login;
 
+import com.iemr.hwc.data.login.Users;
+import com.iemr.hwc.data.videoconsultation.M_UserTemp;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 
-import com.iemr.hwc.data.videoconsultation.M_UserTemp;
-
 @Repository
 @RestResource(exported = false)
-public interface UserRepo extends CrudRepository<M_UserTemp, Long> {
-
-	@Query(value="select u from M_UserTemp u left join  u.userSwymed user where u.userID=:userID and user.userID=:userID")
-	M_UserTemp findOneMap(@Param("userID")Long userid);
+public interface UserRepo extends CrudRepository<Users, Long> {
+	@Query(" SELECT u FROM M_UserTemp u WHERE u.UserName = :UserName AND u.Deleted = false ")
+	public Users getUserByUsername(@Param("UserName") String username);
 
 }
