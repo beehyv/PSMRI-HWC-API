@@ -74,7 +74,7 @@ public class UserBiomectrics {
         else{
             response.setError(404, "User with userID: "+userID+" not found");
         }
-        logger.info("village master" + response.toString());
+        logger.info("Get fingerprint " + response.toString());
         return response.toString();
     }
 }
