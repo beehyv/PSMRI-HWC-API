@@ -40,4 +40,14 @@ public class CHOAppSyncController {
         return choappSyncService.getBeneficiaryByVillageIDAndLastModifiedDate(villageIDAndLastSyncDate, Authorization);
     }
 
+    // beneficiary flow status records sync from AMRIT server to CHO app
+    @ApiOperation(value = "Sync beneficiaries flow status records ", consumes = "application/json", produces = "application/json")
+    @RequestMapping(value = { "/benFlowStatusRecordsToLocal" }, method = {
+            RequestMethod.GET })
+    public ResponseEntity<String> flowStatusesSyncToAppLocal(@RequestBody SyncSearchRequest villageIDAndLastSyncDate,
+                                             @RequestHeader(value = "Authorization") String Authorization) {
+
+            return choappSyncService.getFlowRecordsByVillageIDAndLastModifiedDate(villageIDAndLastSyncDate, Authorization);
+    }
+
 }
