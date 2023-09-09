@@ -1,7 +1,12 @@
 package com.iemr.hwc.service.CHOApp;
 
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.iemr.hwc.service.benFlowStatus.CommonBenStatusFlowServiceImpl;
+import com.iemr.hwc.utils.request.SyncSearchRequest;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -27,6 +32,9 @@ public class CHOAppSyncServiceImpl implements CHOAppSyncService {
 
     @Value("${registrationUrl}")
     private String registrationUrl;
+
+    @Value("${syncSearchByLocation}")
+    private String syncSearchByLocation;
 
     private CommonBenStatusFlowServiceImpl commonBenStatusFlowServiceImpl;
 
@@ -103,5 +111,65 @@ public class CHOAppSyncServiceImpl implements CHOAppSyncService {
         headers.remove("AUTHORIZATION");
 
         return new ResponseEntity<> (responseObj.toString(),headers,status);
+    }
+
+    public ResponseEntity<String> getBeneficiaryByVillageIDAndLastModifiedDate(SyncSearchRequest villageIDAndLastSyncDate, String Authorization) {
+
+        JsonObject responseObj = new JsonObject();
+        HttpStatus statusCode = HttpStatus.OK;
+
+        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+        headers.add("Content-Type", "application/json");
+        headers.add("AUTHORIZATION", Authorization);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+
+            if(villageIDAndLastSyncDate.getVillageID() !=null && villageIDAndLastSyncDate.getLastSyncDate() != null) {
+
+                DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+                DateTime dt = formatter.parseDateTime(villageIDAndLastSyncDate.getLastSyncDate());
+
+                villageIDAndLastSyncDate.setLastModifiedDate(dt.toDate().getTime());
+
+                String identityRequestString = new GsonBuilder().create().toJson(villageIDAndLastSyncDate);
+                HttpEntity<String> request = new HttpEntity<>(identityRequestString, headers);
+                ResponseEntity<String> response = restTemplate.exchange(syncSearchByLocation, HttpMethod.POST, request,
+                        String.class);
+
+                if (response.hasBody()) {
+
+                    JSONObject responseJSON = new JSONObject(response.getBody());
+                    JSONArray jsonArray = new JSONArray(responseJSON.getJSONObject("response").getString("data"));
+
+                    return new ResponseEntity<>(jsonArray.toString(),headers,statusCode);
+                }
+            }else{
+                logger.error("Unable to search beneficiaries to sync based on villageID and lastSyncDate. Incomplete request body - Either villageID or lastSyncDate missing.");
+                responseObj.addProperty("error","Bad request. Incomplete request body - Either villageID or lastSyncDate missing.");
+                statusCode = HttpStatus.BAD_REQUEST;
+            }
+        }
+        catch(ResourceAccessException e){
+            logger.error("Error establishing connection with Identity service. " + e);
+            responseObj.addProperty("error", "Error establishing connection with Identity service. ");
+            statusCode = HttpStatus.SERVICE_UNAVAILABLE;
+        } catch(RestClientResponseException e){
+            logger.error("Error encountered in Identity service while searching beneficiary based on villageID and lastSyncDate " + e);
+            responseObj.addProperty("error", "Error encountered in Identity service while searching beneficiary based on villageID and lastSyncDate " + e);
+            statusCode = HttpStatus.valueOf(e.getRawStatusCode());
+        } catch (JSONException e){
+            logger.error("Encountered JSON exception while parsing response from Identity service " + e);
+            responseObj.addProperty("error", "Encountered JSON exception while parsing response from Identity service " + e);
+            statusCode = HttpStatus.BAD_GATEWAY;
+        } catch (Exception e){
+            logger.error("Encountered exception " + e);
+            responseObj.addProperty("error", "Error searching beneficiaries to sync. Exception " + e);
+            statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return new ResponseEntity<>(responseObj.toString(),headers,statusCode);
+
     }
 }
