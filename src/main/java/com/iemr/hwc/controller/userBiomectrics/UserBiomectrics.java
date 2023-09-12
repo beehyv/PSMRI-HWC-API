@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin
 @RestController
-@RequestMapping(value = "wo/user_biometrics", headers = "Authorization")
+@RequestMapping(value = "/user_biometrics", headers = "Authorization")
 public class UserBiomectrics {
     private Logger logger = LoggerFactory.getLogger(CommonMasterController.class);
 
