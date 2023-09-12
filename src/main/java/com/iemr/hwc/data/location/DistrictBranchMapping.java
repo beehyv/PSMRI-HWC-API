@@ -85,6 +85,10 @@ public class DistrictBranchMapping {
 	@Expose
 	private Boolean active;
 
+	@Column(name = "address")
+	@Expose
+	private String address;
+
 	@Transient
 	private OutputMapper outputMapper = new OutputMapper();
 
@@ -96,19 +100,20 @@ public class DistrictBranchMapping {
 		this.villageName = VillageName;
 	}
 
-	public DistrictBranchMapping(Integer DistrictBranchID, String VillageName, Double latitude, Double longitude, Boolean active) {
+	public DistrictBranchMapping(Integer DistrictBranchID, String VillageName, Double latitude, Double longitude, Boolean active, String address) {
 		this.districtBranchID = DistrictBranchID;
 		this.villageName = VillageName;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.active = active;
+		this.address = address;
 	}
 
 	public static String getVillageList(ArrayList<Object[]> resList) {
 		DistrictBranchMapping villOBJ = null;
 		ArrayList<DistrictBranchMapping> villList = new ArrayList<>();
 		for (Object[] obj : resList) {
-			villOBJ = new DistrictBranchMapping((Integer) obj[0], (String) obj[1], (Double) obj[2], (Double) obj[3], (Boolean) obj[4]);
+			villOBJ = new DistrictBranchMapping((Integer) obj[0], (String) obj[1], (Double) obj[2], (Double) obj[3], (Boolean) obj[4], (String) obj[5]);
 			villList.add(villOBJ);
 		}
 		return new Gson().toJson(villList);
@@ -239,5 +244,13 @@ public class DistrictBranchMapping {
 
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 }
