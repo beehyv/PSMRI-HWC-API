@@ -1,37 +1,24 @@
-package com.iemr.hwc.controller.wo;
+package com.iemr.hwc.controller.userBiomectrics;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.iemr.hwc.controller.common.master.CommonMasterController;
 import com.iemr.hwc.data.registrar.FingerPrintDTO;
 import com.iemr.hwc.data.registrar.UserBiometricsMapping;
-import com.iemr.hwc.fhir.dto.beneficiary.identityDTO.BeneficiariesDTOSearch;
 import com.iemr.hwc.service.location.LocationServiceImpl;
 import com.iemr.hwc.service.registrar.RegistrarServiceImpl;
 import com.iemr.hwc.utils.response.OutputResponse;
 import io.swagger.annotations.ApiOperation;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Type;
-import java.util.List;
-
 @CrossOrigin
 @RestController
-@RequestMapping(value = "wo/user_biometrics")
+@RequestMapping(value = "/user_biometrics", headers = "Authorization")
 public class UserBiomectrics {
     //    private OutputResponse response;
     private Logger logger = LoggerFactory.getLogger(CommonMasterController.class);
-
-    private LocationServiceImpl locationServiceImpl;
-
-    @Autowired
-    public void setLocationServiceImpl(LocationServiceImpl locationServiceImpl) {
-        this.locationServiceImpl = locationServiceImpl;
-    }
 
     @Autowired
     private RegistrarServiceImpl registrarService;
@@ -39,7 +26,7 @@ public class UserBiomectrics {
 
     @CrossOrigin()
     @ApiOperation(value = "add fingerprint for a given username", consumes = "application/json", produces = "application/json")
-    @RequestMapping(value = "add/fingerprint/wo", method = { RequestMethod.POST }, produces = {
+    @RequestMapping(value = "add/fingerprint", method = { RequestMethod.POST }, produces = {
             "application/json" })
     public String addFingerPrints(@RequestBody FingerPrintDTO comingRequest) {
         OutputResponse response = new OutputResponse();
@@ -52,6 +39,9 @@ public class UserBiomectrics {
                 else if(resp !=null && resp.equals("ko")){
                     response.setError(500, "Error adding fingerprints");
                 }
+                else if(resp !=null && resp.equals("fingerprint_already_added")){
+                    response.setError(210, "Fingerprints already added");
+                }
             } else {
                 response.setError(400, "Invalid request");
             }
@@ -63,7 +53,7 @@ public class UserBiomectrics {
     }
 
     @ApiOperation(value = "Get fingerprint by username", consumes = "application/json", produces = "application/json")
-    @RequestMapping(value = "/get/fingerprint/{userID}/wo", method = RequestMethod.GET)
+    @RequestMapping(value = "/get/fingerprint/{userID}", method = RequestMethod.GET)
     public String getVillageByDistrictID(@PathVariable("userID") Long userID) {
         logger.info("Get fingerprint by username ..." + userID);
         OutputResponse response = new OutputResponse();
@@ -80,13 +70,14 @@ public class UserBiomectrics {
             userBiometricsMapping.setRightIndexFinger(user.getRightIndexFinger());
             userBiometricsMapping.setLeftThumb(user.getLeftThumb());
             userBiometricsMapping.setLeftIndexFinger(user.getLeftIndexFinger());
+            userBiometricsMapping.setActive(user.getActive());
 
             response.setResponse(gson.toJson(userBiometricsMapping));
         }
         else{
             response.setError(404, "User with userID: "+userID+" not found");
         }
-        logger.info("village master" + response.toString());
+        logger.info("Get Fingerprint response " + response.toString());
         return response.toString();
     }
 }

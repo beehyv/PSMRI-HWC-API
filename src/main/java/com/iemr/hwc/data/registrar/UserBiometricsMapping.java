@@ -111,4 +111,8 @@ public class UserBiometricsMapping {
     @Column(name = "left_index_finger")
     private String leftIndexFinger;
 
+    @Column(name = "active")
+    @Expose
+    private Boolean active;
+
 }
