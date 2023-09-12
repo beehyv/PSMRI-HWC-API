@@ -870,6 +870,9 @@ public class RegistrarServiceImpl implements RegistrarService {
 				response = "fingerprint_already_added";
 			}
 		}
+		else{
+			response = "wrong username";
+		}
 
 		return response;
 	}
