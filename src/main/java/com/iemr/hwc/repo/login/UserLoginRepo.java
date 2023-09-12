@@ -19,24 +19,19 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see https://www.gnu.org/licenses/.
 */
-package com.iemr.hwc.repo.location;
+package com.iemr.hwc.repo.login;
 
-import java.util.ArrayList;
-
+import com.iemr.hwc.data.login.Users;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 
-import com.iemr.hwc.data.location.V_getVanLocDetails;
-
 @Repository
 @RestResource(exported = false)
-public interface V_getVanLocDetailsRepo extends CrudRepository<V_getVanLocDetails, Integer> {
-	@Query(" SELECT distinct t.stateID, t.parkingPlaceID, t.districtID, t.districtName,"
-			+ "t.blockid, t.blockname, t.villageId, t.villageName, t.govtLGDStateID,t.govtLGDDistrictID"
-			+ " FROM V_getVanLocDetails t WHERE t.vanID = :vanID ")
-	ArrayList<Object[]> getVanDetails(@Param("vanID") Integer vanID);
+public interface UserLoginRepo extends CrudRepository<Users, Long> {
+	@Query(" SELECT u FROM Users u WHERE u.userName = :UserName AND u.deleted = false ")
+	public Users getUserByUsername(@Param("UserName") String username);
 
 }
