@@ -53,10 +53,10 @@ public class UserMasterVillage {
         return response.toString();
     }
 
-    @ApiOperation(value = "Get fingerprint by username", consumes = "application/json", produces = "application/json")
+    @ApiOperation(value = "Get master village for a user", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/get/mastervillage/{userID}/wo", method = RequestMethod.GET)
     public String getMasterVillage(@PathVariable("userID") Long userID) {
-        logger.info("Get fingerprint by username ..." + userID);
+        logger.info("Get master village by userID ..." + userID);
         OutputResponse response = new OutputResponse();
         Users user = userService.getMasterVillage(userID);
         if (user != null){
