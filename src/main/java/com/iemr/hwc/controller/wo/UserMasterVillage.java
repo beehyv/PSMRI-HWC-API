@@ -2,7 +2,7 @@ package com.iemr.hwc.controller.wo;
 
 import com.google.gson.Gson;
 import com.iemr.hwc.controller.common.master.CommonMasterController;
-import com.iemr.hwc.data.login.Users;
+import com.iemr.hwc.data.login.UsersMasterVillage;
 import com.iemr.hwc.service.user.UserServiceImpl;
 import com.iemr.hwc.utils.response.OutputResponse;
 import io.swagger.annotations.ApiOperation;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "wo/user")
 public class UserMasterVillage {
-    //    private OutputResponse response;
     private Logger logger = LoggerFactory.getLogger(CommonMasterController.class);
 
     @Autowired
     private UserServiceImpl userService;
+
     @CrossOrigin()
     @ApiOperation(value = "set master village to a user", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/set/mastervillage/{userID}/{villageID}/wo", method = { RequestMethod.GET }, produces = {
@@ -54,12 +54,12 @@ public class UserMasterVillage {
         return response.toString();
     }
 
-    @ApiOperation(value = "Get fingerprint by username", consumes = "application/json", produces = "application/json")
+    @ApiOperation(value = "Get master village for a user", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/get/mastervillage/{userID}/wo", method = RequestMethod.GET)
     public String getMasterVillage(@PathVariable("userID") Long userID) {
-        logger.info("Get fingerprint by username ..." + userID);
+        logger.info("Get master village by userID ..." + userID);
         OutputResponse response = new OutputResponse();
-        Users user = userService.getMasterVillage(userID);
+        UsersMasterVillage user = userService.getMasterVillage(userID);
         if (user != null){
             if(user.getMasterVillage()!=null){
                 Gson gson = new Gson();
