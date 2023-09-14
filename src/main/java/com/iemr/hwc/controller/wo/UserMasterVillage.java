@@ -2,6 +2,7 @@ package com.iemr.hwc.controller.wo;
 
 import com.google.gson.Gson;
 import com.iemr.hwc.controller.common.master.CommonMasterController;
+import com.iemr.hwc.data.login.UserMasterVillageDTO;
 import com.iemr.hwc.data.login.UsersMasterVillage;
 import com.iemr.hwc.service.user.UserServiceImpl;
 import com.iemr.hwc.utils.response.OutputResponse;
@@ -21,17 +22,17 @@ public class UserMasterVillage {
     private UserServiceImpl userService;
     @CrossOrigin()
     @ApiOperation(value = "set master village to a user", consumes = "application/json", produces = "application/json")
-    @RequestMapping(value = "/set/mastervillage/{userID}/{villageID}/wo", method = { RequestMethod.GET }, produces = {
+    @RequestMapping(value = "/set/mastervillage/wo", method = { RequestMethod.POST }, produces = {
             "application/json" })
-    public String setMasterVillage(@PathVariable("userID") Long userID, @PathVariable("villageID") Integer villageID) {
+    public String setMasterVillage(@RequestBody UserMasterVillageDTO userMasterVillageDTO) {
         OutputResponse response = new OutputResponse();
         try {
-            if (userID != null && villageID != null) {
-                String resp = userService.setMasterVillage(userID, villageID);
+            if (userMasterVillageDTO!=null && userMasterVillageDTO.getUserID() != null && userMasterVillageDTO.getMasterVillageID() != null) {
+                String resp = userService.setMasterVillage(userMasterVillageDTO.getUserID(), userMasterVillageDTO.getMasterVillageID());
                 if(resp !=null && resp.equals("ok")){
                     response.setResponse(resp);
                 }
-                else if(resp !=null && resp.equals("ko")){
+                else if(resp !=null && resp.equals("not_ok")){
                     response.setError(500, "Error setting master village");
                 }
                 else if(resp !=null && resp.equals("villageID_not_exist")){

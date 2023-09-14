@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
                         response = "ok";
                     }
                     else{
-                        response = "ko";
+                        response = "not_ok";
                     }
                 }
                 else{
