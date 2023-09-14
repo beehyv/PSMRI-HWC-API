@@ -2,7 +2,7 @@ package com.iemr.hwc.controller.wo;
 
 import com.google.gson.Gson;
 import com.iemr.hwc.controller.common.master.CommonMasterController;
-import com.iemr.hwc.data.login.Users;
+import com.iemr.hwc.data.login.UsersMasterVillage;
 import com.iemr.hwc.service.user.UserServiceImpl;
 import com.iemr.hwc.utils.response.OutputResponse;
 import io.swagger.annotations.ApiOperation;
@@ -58,7 +58,7 @@ public class UserMasterVillage {
     public String getMasterVillage(@PathVariable("userID") Long userID) {
         logger.info("Get master village by userID ..." + userID);
         OutputResponse response = new OutputResponse();
-        Users user = userService.getMasterVillage(userID);
+        UsersMasterVillage user = userService.getMasterVillage(userID);
         if (user != null){
             if(user.getMasterVillage()!=null){
                 Gson gson = new Gson();

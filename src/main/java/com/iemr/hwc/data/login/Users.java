@@ -113,13 +113,4 @@ public class Users {
 	@Column(name = "LastModDate")
 	private Timestamp lastModDate;
 
-	@Expose
-	@Column(name = "active")
-	private Boolean active;
-
-	@Expose
-	@ManyToOne
-	@JoinColumn(name="masterVillage_id")
-	private DistrictBranchMapping masterVillage;
-
 }
