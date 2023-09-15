@@ -864,7 +864,7 @@ public class RegistrarServiceImpl implements RegistrarService {
 				if (resp != null) {
 					response = "ok";
 				} else {
-					response = "ko";
+					response = "not_ok";
 				}
 			} else {
 				response = "fingerprint_already_added";

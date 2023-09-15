@@ -32,7 +32,7 @@ public class UserBiomectrics {
                 if(resp !=null && resp.equals("ok")){
                     response.setResponse(resp);
                 }
-                else if(resp !=null && resp.equals("ko")){
+                else if(resp !=null && resp.equals("not_ok")){
                     response.setError(500, "Error adding fingerprints");
                 }
                 else if(resp !=null && resp.equals("fingerprint_already_added")){
