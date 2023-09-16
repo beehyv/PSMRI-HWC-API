@@ -1,5 +1,6 @@
 package com.iemr.hwc.service.choApp;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
 import com.iemr.hwc.data.choApp.UserActivityLogs;
@@ -27,6 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -241,19 +245,26 @@ public class CHOAppSyncServiceImpl implements CHOAppSyncService {
         HttpStatus statusCode = HttpStatus.OK;
         OutputResponse outputResponse = new OutputResponse();
         ArrayList<BeneficiaryFlowStatus> benFlowList;
+        ObjectMapper obj = new ObjectMapper();
+        Pageable pageable;
+        Page<BeneficiaryFlowStatus> paginatedFlowRecords;
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Content-Type", "application/json");
 
         try {
             if (villageIDAndLastSyncDate.getVillageID() !=null && !villageIDAndLastSyncDate.getVillageID().isEmpty()
-                    && villageIDAndLastSyncDate.getLastSyncDate() != null) {
+                    && villageIDAndLastSyncDate.getLastSyncDate() != null && villageIDAndLastSyncDate.getPageNo() != null
+                    && villageIDAndLastSyncDate.getPageSize() != null) {
+
                 DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
                 DateTime dt = formatter.parseDateTime(villageIDAndLastSyncDate.getLastSyncDate());
 
-                benFlowList = beneficiaryFlowStatusRepo.getFlowRecordsToSync(villageIDAndLastSyncDate.getVillageID(),
-                        new Timestamp(dt.toDate().getTime()));
-                outputResponse.setResponse(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create().toJson(benFlowList));
+                pageable = new PageRequest(villageIDAndLastSyncDate.getPageNo(), villageIDAndLastSyncDate.getPageSize());
+                paginatedFlowRecords = beneficiaryFlowStatusRepo.getPaginatedFlowRecordsToSync(villageIDAndLastSyncDate.getVillageID(),
+                        new Timestamp(dt.toDate().getTime()),pageable);
+
+                outputResponse.setResponse(obj.writeValueAsString(paginatedFlowRecords));
             }else{
                 logger.error("Unable to search beneficiaries to sync based on villageIDs and lastSyncDate. Incomplete request body - Either villageIDs or lastSyncDate missing.");
                 outputResponse.setError(400,"Bad request. Incomplete request body - Either villageIDs or lastSyncDate missing.");
@@ -329,7 +340,7 @@ public class CHOAppSyncServiceImpl implements CHOAppSyncService {
 
             //Fetching visitDetails, chief complaints
             response.put("GOPDNurseVisitDetail", commonNurseServiceImpl.getCSVisitDetails(benRegID, visitCode));
-            
+
             ArrayList<Object[]> resList = benChiefComplaintRepo.getBenChiefComplaints(benRegID, visitCode);
             ArrayList<BenChiefComplaint> benChiefComplaints = BenChiefComplaint.getBenChiefComplaints(resList);
             response.put("BenChiefComplaints", benChiefComplaints);
