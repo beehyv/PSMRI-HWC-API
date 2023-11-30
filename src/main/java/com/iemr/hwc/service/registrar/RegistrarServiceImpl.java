@@ -845,24 +845,29 @@ public class RegistrarServiceImpl implements RegistrarService {
 	public String saveFingerprints(FingerPrintDTO comingRequest) {
 		String response = "";
 		Users user = userRepo.getUserByUsername(comingRequest.getUserName());
-		if(user !=null){
-			UserBiometricsMapping userBiometricsMapping = new UserBiometricsMapping();
-			userBiometricsMapping.setUserID(user.getUserID());
-			userBiometricsMapping.setFirstName(user.getFirstName());
-			userBiometricsMapping.setLastName(user.getLastName());
-			userBiometricsMapping.setUserName(user.getUserName());
-			userBiometricsMapping.setCreatedBy(user.getUserName());
-			userBiometricsMapping.setRightThumb(comingRequest.getRightThumb());
-			userBiometricsMapping.setRightIndexFinger(comingRequest.getRightIndexFinger());
-			userBiometricsMapping.setLeftThumb(comingRequest.getLeftThumb());
-			userBiometricsMapping.setLeftIndexFinger(comingRequest.getLeftIndexFinger());
+		if(user !=null) {
+			UserBiometricsMapping userBiomectric = userBiometricsRepo.getFingerprintsByUserID(user.getUserID());
+			if (userBiomectric == null || (userBiomectric != null && userBiomectric.getActive() == false)) { // If the user don't have fingerprint yet, otherwise check if active equals false
+				UserBiometricsMapping userBiometricsMapping = new UserBiometricsMapping();
+				userBiometricsMapping.setUserID(user.getUserID());
+				userBiometricsMapping.setFirstName(user.getFirstName());
+				userBiometricsMapping.setLastName(user.getLastName());
+				userBiometricsMapping.setUserName(user.getUserName());
+				userBiometricsMapping.setCreatedBy(user.getUserName());
+				userBiometricsMapping.setRightThumb(comingRequest.getRightThumb());
+				userBiometricsMapping.setRightIndexFinger(comingRequest.getRightIndexFinger());
+				userBiometricsMapping.setLeftThumb(comingRequest.getLeftThumb());
+				userBiometricsMapping.setLeftIndexFinger(comingRequest.getLeftIndexFinger());
+				userBiometricsMapping.setActive(true);
 
-			UserBiometricsMapping resp = userBiometricsRepo.save(userBiometricsMapping);
-			if(resp !=null){
-				response = "ok";
-			}
-			else{
-				response = "ko";
+				UserBiometricsMapping resp = userBiometricsRepo.save(userBiometricsMapping);
+				if (resp != null) {
+					response = "ok";
+				} else {
+					response = "not_ok";
+				}
+			} else {
+				response = "fingerprint_already_added";
 			}
 		}
 		else{
