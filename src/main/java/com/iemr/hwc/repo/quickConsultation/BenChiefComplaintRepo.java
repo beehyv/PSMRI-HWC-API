@@ -21,10 +21,10 @@
 */
 package com.iemr.hwc.repo.quickConsultation;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import javax.transaction.Transactional;
-
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -37,6 +37,10 @@ import com.iemr.hwc.data.quickConsultation.BenChiefComplaint;
 @Repository
 @RestResource(exported = false)
 public interface BenChiefComplaintRepo extends CrudRepository<BenChiefComplaint, Long> {
+
+	@Query("SELECT t from BenChiefComplaint t WHERE (t.providerServiceMapID = :providerServiceMapId OR t.vanID = :vanID) AND t.lastModDate> :lastModDate  ORDER BY t.lastModDate DESC ")
+	public ArrayList<BenChiefComplaint> getChiefComplaintByLocationAndLastModDate(
+			@Param("providerServiceMapId") Integer providerServiceMapId, @Param("vanID") Integer vanID, @Param("lastModDate") Timestamp lastModDate);
 
 	@Query(" SELECT benChiefComplaintID, beneficiaryRegID, benVisitID, providerServiceMapID, chiefComplaintID, chiefComplaint, "
 			+ "duration, unitOfDuration, description, visitCode,conceptID "

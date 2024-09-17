@@ -128,6 +128,9 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 	@Query("SELECT t FROM BeneficiaryFlowStatus t Where t.benFlowID = :benFlowID ")
 	public BeneficiaryFlowStatus getBenDetailsForLeftSidePanel(@Param("benFlowID") Long benFlowID);
 
+	@Query("SELECT t FROM BeneficiaryFlowStatus t Where t.benVisitID = :benVisitID AND t.visitCode = :visitCode")
+	public BeneficiaryFlowStatus getBenFlowByVisitIDAndVisitCode(@Param("benVisitID") Long benVisitID, @Param("visitCode") Long visitCode);
+
 	// MMU doc work-list
 	@Query("SELECT t from BeneficiaryFlowStatus t WHERE (t.doctorFlag = 1 OR t.doctorFlag = 2 OR "
 			+ " t.doctorFlag = 3 OR t.nurseFlag = 2 OR t.doctorFlag = 9) AND t.deleted = false "
