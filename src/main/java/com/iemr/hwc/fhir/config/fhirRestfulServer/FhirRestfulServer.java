@@ -11,6 +11,7 @@ import com.iemr.hwc.fhir.config.authInterceptor.AuthInterceptor;
 import com.iemr.hwc.fhir.provider.condition.ConditionExtProvider;
 import com.iemr.hwc.fhir.provider.encounter.EncounterExtProvider;
 import com.iemr.hwc.fhir.provider.immunization.ImmunizationExtProvider;
+import com.iemr.hwc.fhir.provider.medicationStatement.MedicationStatementExtProvider;
 import com.iemr.hwc.fhir.provider.observation.ObservationExtProvider;
 import com.iemr.hwc.fhir.provider.patient.PatientExtProvider;
 import org.hl7.fhir.r4.hapi.validation.FhirInstanceValidator;
@@ -48,6 +49,7 @@ public class FhirRestfulServer extends RestfulServer {
         resourceProviders.add(applicationContext.getBean(ConditionExtProvider.class));
         resourceProviders.add(applicationContext.getBean(ObservationExtProvider.class));
         resourceProviders.add(applicationContext.getBean(ImmunizationExtProvider.class));
+        resourceProviders.add(applicationContext.getBean(MedicationStatementExtProvider.class));
         setResourceProviders(resourceProviders);
 
         //Registering Interceptors
