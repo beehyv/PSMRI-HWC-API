@@ -29,4 +29,6 @@ public class SyncSearchRequest {
     private String lastSyncDate;
     private Long lastModifiedDate;
     private List<Integer> villageID;
+    private Integer pageNo;
+    private Integer pageSize;
 }

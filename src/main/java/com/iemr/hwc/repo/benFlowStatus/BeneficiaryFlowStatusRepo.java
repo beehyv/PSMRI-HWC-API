@@ -25,6 +25,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -453,8 +455,8 @@ public interface BeneficiaryFlowStatusRepo extends CrudRepository<BeneficiaryFlo
 	public ArrayList<BeneficiaryFlowStatus> getVisitByLocationAndLastModifDate(@Param("villageID") Integer villageID, @Param("lastModDate") Timestamp lastModDate);
 
 	//get ben flow status records based on villageId and last sync date to sync to app local dB
-	@Query("SELECT  t from BeneficiaryFlowStatus t WHERE t.villageID IN :villageIDs AND t.modified_date > :lastModDate ")
-    ArrayList<BeneficiaryFlowStatus> getFlowRecordsToSync(@Param("villageIDs") List<Integer> villageID, @Param("lastModDate") Timestamp lastModDate);
+	@Query("SELECT  t from BeneficiaryFlowStatus t WHERE t.villageID IN :villageIDs AND t.modified_date > :lastModDate ORDER BY t.modified_date ASC ")
+	Page<BeneficiaryFlowStatus> getPaginatedFlowRecordsToSync(@Param("villageIDs") List<Integer> villageID, @Param("lastModDate") Timestamp lastModDate, Pageable pageable);
 
 	@Query("SELECT COUNT(t) from BeneficiaryFlowStatus t WHERE t.villageID IN :villageIDs AND t.modified_date > :lastModDate ")
 	Long getFlowRecordsCount(@Param("villageIDs") List<Integer> villageID, @Param("lastModDate") Timestamp lastModDate);

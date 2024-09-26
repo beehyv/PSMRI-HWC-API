@@ -21,6 +21,8 @@
  */
 package com.iemr.hwc.service.choApp;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.*;
 import com.iemr.hwc.data.benFlowStatus.BeneficiaryFlowStatus;
 import com.iemr.hwc.data.choApp.OutreachActivity;
@@ -45,7 +47,6 @@ import com.iemr.hwc.utils.response.OutputResponse;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
@@ -55,6 +56,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -65,6 +69,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.*;
 import javax.ws.rs.core.MediaType;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -245,7 +250,8 @@ public class CHOAppSyncServiceImpl implements CHOAppSyncService {
         try {
 
             if(villageIDAndLastSyncDate.getVillageID() !=null && !villageIDAndLastSyncDate.getVillageID().isEmpty()
-                    && villageIDAndLastSyncDate.getLastSyncDate() != null) {
+                    && villageIDAndLastSyncDate.getLastSyncDate() != null && villageIDAndLastSyncDate.getPageNo() != null
+                    && villageIDAndLastSyncDate.getPageSize() != null) {
 
                 DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
                 DateTime dt = formatter.parseDateTime(villageIDAndLastSyncDate.getLastSyncDate());
@@ -259,14 +265,14 @@ public class CHOAppSyncServiceImpl implements CHOAppSyncService {
 
                 if (response.hasBody()) {
 
-                    JSONObject responseJSON = new JSONObject(response.getBody());
-                    JSONArray jsonArray = new JSONArray(responseJSON.getJSONObject("response").getString("data"));
+                    JSONObject responseBodyJSON = new JSONObject(response.getBody());
+                    JSONObject resultJSON = new JSONObject(responseBodyJSON.getJSONObject("response").getString("data"));
 
-                    outputResponse.setResponse(jsonArray.toString());
+                    outputResponse.setResponse(resultJSON.toString());
                 }
             }else{
-                logger.error("Unable to search beneficiaries to sync based on villageIDs and lastSyncDate. Incomplete request body - Either villageIDs or lastSyncDate missing.");
-                outputResponse.setError(400,"Bad request. Incomplete request body - Either villageIDs or lastSyncDate missing.");
+                logger.error("Unable to search beneficiaries to sync based on villageIDs and lastSyncDate. Incomplete request body - Any of villageIDs, lastSyncDate, pageNo or pageSize missing.");
+                outputResponse.setError(400,"Bad request. Incomplete request body - Any of villageIDs, lastSyncDate, pageNo or pageSize missing.");
                 statusCode = HttpStatus.BAD_REQUEST;
             }
         }
@@ -399,23 +405,34 @@ public class CHOAppSyncServiceImpl implements CHOAppSyncService {
 
         HttpStatus statusCode = HttpStatus.OK;
         OutputResponse outputResponse = new OutputResponse();
-        ArrayList<BeneficiaryFlowStatus> benFlowList;
+
+        ObjectMapper obj = new ObjectMapper();
+        obj.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        obj.setDateFormat(dateFormat);
+
+        Pageable pageable;
+        Page<BeneficiaryFlowStatus> paginatedFlowRecords;
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Content-Type", "application/json");
 
         try {
             if (villageIDAndLastSyncDate.getVillageID() !=null && !villageIDAndLastSyncDate.getVillageID().isEmpty()
-                    && villageIDAndLastSyncDate.getLastSyncDate() != null) {
+                    && villageIDAndLastSyncDate.getLastSyncDate() != null && villageIDAndLastSyncDate.getPageNo() != null
+                    && villageIDAndLastSyncDate.getPageSize() != null) {
+
                 DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
                 DateTime dt = formatter.parseDateTime(villageIDAndLastSyncDate.getLastSyncDate());
 
-                benFlowList = beneficiaryFlowStatusRepo.getFlowRecordsToSync(villageIDAndLastSyncDate.getVillageID(),
-                        new Timestamp(dt.toDate().getTime()));
-                outputResponse.setResponse(new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create().toJson(benFlowList));
+                pageable = new PageRequest(villageIDAndLastSyncDate.getPageNo(), villageIDAndLastSyncDate.getPageSize());
+                paginatedFlowRecords = beneficiaryFlowStatusRepo.getPaginatedFlowRecordsToSync(villageIDAndLastSyncDate.getVillageID(),
+                        new Timestamp(dt.toDate().getTime()),pageable);
+
+                outputResponse.setResponse(obj.writeValueAsString(paginatedFlowRecords));
             }else{
-                logger.error("Unable to search beneficiaries to sync based on villageIDs and lastSyncDate. Incomplete request body - Either villageIDs or lastSyncDate missing.");
-                outputResponse.setError(400,"Bad request. Incomplete request body - Either villageIDs or lastSyncDate missing.");
+                logger.error("Unable to search beneficiaries to sync based on villageIDs and lastSyncDate. Incomplete request body - Any of villageIDs, lastSyncDate, pageNo or pageSize missing.");
+                outputResponse.setError(400,"Bad request. Incomplete request body - Any of villageIDs, lastSyncDate, pageNo or pageSize missing.");
                 statusCode = HttpStatus.BAD_REQUEST;
             }
         } catch (IllegalArgumentException e){
